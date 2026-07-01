@@ -77,8 +77,8 @@ pip install lief frida angr capstone keystone-engine unicorn
 | 操作 | Windows | macOS / Linux |
 |------|---------|---------------|
 | 卸载 | 双击 `卸载.bat` | `./tgtylab-files/uninstall.sh` |
-| 验证 | 双击 `验证.bat` | `powershell deploy.ps1 -Verify` |
-| 恢复备份 | 双击 `恢复备份.bat` | `powershell deploy.ps1 -Restore` |
+| 验证 | 双击 `验证.bat` | 检查 `~/.claude/CLAUDE.md` 是否存在 |
+| 恢复备份 | 双击 `恢复备份.bat` | 手动复制 `~/.claude/backups/tgtylab-*` |
 
 ## 兼容性
 
@@ -180,4 +180,3 @@ GPL-3.0 — 详见 [LICENSE](LICENSE)。
 ## 免责声明
 
 本项目仅供学习交流使用。使用本项目造成的任何后果由使用者自行承担。
-# YOLO test

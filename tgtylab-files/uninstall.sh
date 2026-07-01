@@ -35,19 +35,48 @@ total=0
 for dir in "${ALL_DIRS[@]}"; do
     if [ -d "$dir" ]; then
         echo -e "${CYAN}[*] Cleaning: $dir${NC}"
-        for f in CLAUDE.md system-prompt.md config.toml; do
+        # Remove top-level config files
+        for f in CLAUDE.md system-prompt.md config.toml settings.json; do
             if [ -f "$dir/$f" ]; then
                 rm -f "$dir/$f" 2>/dev/null
                 echo -e "${GREEN}    Removed $f${NC}"
                 total=$((total + 1))
             fi
         done
+        # Remove .claude/hooks/
+        if [ -d "$dir/.claude/hooks" ]; then
+            rm -rf "$dir/.claude/hooks" 2>/dev/null
+            echo -e "${GREEN}    Removed .claude/hooks/${NC}"
+            total=$((total + 1))
+        fi
+        # Remove .claude/workflows/
+        if [ -d "$dir/.claude/workflows" ]; then
+            rm -rf "$dir/.claude/workflows" 2>/dev/null
+            echo -e "${GREEN}    Removed .claude/workflows/${NC}"
+            total=$((total + 1))
+        fi
+        # Remove .claude/settings.local.json
+        if [ -f "$dir/.claude/settings.local.json" ]; then
+            rm -f "$dir/.claude/settings.local.json" 2>/dev/null
+            echo -e "${GREEN}    Removed .claude/settings.local.json${NC}"
+            total=$((total + 1))
+        fi
+        # Remove backups
+        if [ -d "$dir/backups" ]; then
+            rm -rf "$dir/backups" 2>/dev/null
+            echo -e "${GREEN}    Removed backups/${NC}"
+            total=$((total + 1))
+        fi
+        # Remove empty .claude dir
+        if [ -d "$dir/.claude" ] && [ -z "$(ls -A "$dir/.claude" 2>/dev/null)" ]; then
+            rmdir "$dir/.claude" 2>/dev/null
+        fi
     fi
 done
 
 echo ""
 echo -e "${CYAN}============================================${NC}"
-echo -e "${GREEN}  Uninstall complete. Removed $total files.${NC}"
+echo -e "${GREEN}  Uninstall complete. Removed $total items.${NC}"
 echo -e "${CYAN}============================================${NC}"
 echo ""
 read -p "Press Enter to exit..."

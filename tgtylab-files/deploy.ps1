@@ -3,6 +3,9 @@
 
 param([switch]$Uninstall, [switch]$Verify, [switch]$Restore)
 
+# Version
+$DEPLOY_VERSION = "2.0"
+
 # ========== Encoding ==========
 $ProgressPreference = 'SilentlyContinue'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
@@ -102,6 +105,17 @@ function Write-FileUtf8($Path, $Content) {
         return $true
     } catch {}
     return $false
+}
+
+function Convert-ToWslPath($winPath) {
+    # Convert C:\Users\foo to /mnt/c/Users/foo
+    $drive = (Split-Path -Qualifier $winPath -ErrorAction SilentlyContinue)
+    if ($drive) {
+        $letter = $drive.TrimEnd(':').ToLower()
+        $rest = $winPath.Substring(2).Replace('\', '/')
+        return "/mnt/$letter$rest"
+    }
+    return $winPath.Replace('\', '/')
 }
 
 function Copy-FileSafe($src, $dst, $retries = 3) {
@@ -623,25 +637,26 @@ if ($wslExe) {
 
         # WSL Claude Code
         $wslClaudeDir = "$wslHome/.claude"
-        $winSrc = $BUNDLE_DIR
-        $wslClaudeSrc = $winSrc.Replace('\','/').Replace(':','')
+        $wslBundleSrc = Convert-ToWslPath $BUNDLE_DIR
         $wslClaudeScript = @'
 mkdir -p "WCLDIR/.claude/hooks" "WCLDIR/.claude/workflows"
-cp "/mnt/c/WSRC/CLAUDE.md" "WCLDIR/CLAUDE.md" 2>/dev/null
-cp "/mnt/c/WSRC/system-prompt.md" "WCLDIR/system-prompt.md" 2>/dev/null
+cp "WSRC/CLAUDE.md" "WCLDIR/CLAUDE.md" 2>/dev/null
+cp "WSRC/system-prompt.md" "WCLDIR/system-prompt.md" 2>/dev/null
 printf 'model_instructions_file = "system-prompt.md"\n' > "WCLDIR/config.toml"
 '@
-        $wslClaudeScript = $wslClaudeScript.Replace('WCLDIR', $wslClaudeDir).Replace('WSRC', $wslClaudeSrc)
+        $wslClaudeScript = $wslClaudeScript.Replace('WCLDIR', $wslClaudeDir).Replace('WSRC', $wslBundleSrc)
         & wsl -e bash -c $wslClaudeScript 2>$null
 
         # WSL hooks + workflows
-        $wslScriptDir = $SCRIPT_DIR.Replace('\','/').Replace(':','')
-        & wsl -e bash -c "
-            SRC='/mnt/c/$($wslScriptDir)/..'
-            cp '\$SRC/.claude/hooks/pre-tool-call.sh' '$wslClaudeDir/.claude/hooks/' 2>/dev/null
-            for f in '\$SRC/.claude/workflows/'*.js; do cp \"\$f\" '$wslClaudeDir/.claude/workflows/' 2>/dev/null; done
-            cp '\$SRC/settings.local.json' '$wslClaudeDir/.claude/' 2>/dev/null
-        " 2>$null
+        $wslScriptSrc = Convert-ToWslPath (Join-Path $SCRIPT_DIR '..')
+        $wslHooksScript = @'
+SRC="WSRC"
+cp "$SRC/.claude/hooks/pre-tool-call.sh" "WCLDIR/.claude/hooks/" 2>/dev/null
+for f in "$SRC/.claude/workflows/"*.js; do cp "$f" "WCLDIR/.claude/workflows/" 2>/dev/null; done
+cp "$SRC/settings.local.json" "WCLDIR/.claude/" 2>/dev/null
+'@
+        $wslHooksScript = $wslHooksScript.Replace('WSRC', $wslScriptSrc).Replace('WCLDIR', $wslClaudeDir)
+        & wsl -e bash -c $wslHooksScript 2>$null
 
         $wslClaudeOk = & wsl -e bash -c "test -f '$wslClaudeDir/CLAUDE.md' && echo OK || echo FAIL" 2>$null
         if ($wslClaudeOk -match 'OK') {
@@ -653,28 +668,30 @@ printf 'model_instructions_file = "system-prompt.md"\n' > "WCLDIR/config.toml"
         # WSL Hermes
         $wslHermesDir = "$wslHome/.hermes"
         $hermesSrcWin = Join-Path (Join-Path (Join-Path $SCRIPT_DIR '..') 'hermes-files') 'hermes-config-bundle'
-        $hermesSrcWsl = $hermesSrcWin.Replace('\','/').Replace(':','')
-        & wsl -e bash -c "
-            if [ -d '$wslHermesDir' ]; then
-                cp '/mnt/c/$hermesSrcWsl/SOUL.md' '$wslHermesDir/SOUL.md' 2>/dev/null
-                cp '/mnt/c/$hermesSrcWsl/config.yaml' '$wslHermesDir/config.yaml' 2>/dev/null
-                echo 'OK'
-            else
-                echo 'SKIP'
-            fi
-        " 2>$null | ForEach-Object {
+        $hermesSrcWsl = Convert-ToWslPath $hermesSrcWin
+        $wslHermesScript = @'
+if [ -d "HDIR" ]; then
+    cp "HSRC/SOUL.md" "HDIR/SOUL.md" 2>/dev/null
+    cp "HSRC/config.yaml" "HDIR/config.yaml" 2>/dev/null
+    echo 'OK'
+else
+    echo 'SKIP'
+fi
+'@
+        $wslHermesScript = $wslHermesScript.Replace('HDIR', $wslHermesDir).Replace('HSRC', $hermesSrcWsl)
+        & wsl -e bash -c $wslHermesScript 2>$null | ForEach-Object {
             if ($_ -match 'OK') { Write-Host "    Hermes (WSL): OK" -ForegroundColor Green }
             else { Write-Host "    Hermes (WSL): SKIPPED (not found)" -ForegroundColor DarkGray }
         }
 
         # WSL Codex
         $wslCodexDir = "$wslHome/.codex"
-        $codexSrcWsl = $codexSrc.Replace('\','/').Replace(':','')
+        $codexSrcWsl = Convert-ToWslPath $codexSrc
         $wslCodexScript = @'
 if [ -d "WCLDIR" ]; then
-    cp "/mnt/c/CSRC/gpt5.5-unrestricted.md" "WCLDIR/" 2>/dev/null
-    cp "/mnt/c/CSRC/AGENTS.md" "WCLDIR/" 2>/dev/null
-    cp "/mnt/c/CSRC/instructions.txt" "WCLDIR/" 2>/dev/null
+    cp "CSRC/gpt5.5-unrestricted.md" "WCLDIR/" 2>/dev/null
+    cp "CSRC/AGENTS.md" "WCLDIR/" 2>/dev/null
+    cp "CSRC/instructions.txt" "WCLDIR/" 2>/dev/null
     if ! grep -q 'model_instructions_file' "WCLDIR/config.toml" 2>/dev/null; then
         TEMP=$(mktemp)
         printf 'model_instructions_file = "./gpt5.5-unrestricted.md"\n' > "$TEMP"
@@ -695,18 +712,20 @@ fi
         # WSL OpenCode
         $wslOpenCodeDir = "$wslHome/.config/opencode"
         $opencodeSrcWin = Join-Path (Join-Path (Join-Path $SCRIPT_DIR '..') 'opencode-files') 'opencode-config-bundle'
-        $opencodeSrcWsl = $opencodeSrcWin.Replace('\','/').Replace(':','')
-        & wsl -e bash -c "
-            if [ -d '$wslOpenCodeDir' ]; then
-                mkdir -p '$wslOpenCodeDir/.opencode/agents' '$wslOpenCodeDir/prompts'
-                cp '/mnt/c/$opencodeSrcWsl/opencode.json' '$wslOpenCodeDir/' 2>/dev/null
-                cp '/mnt/c/$opencodeSrcWsl/.opencode/agents/security-operator.md' '$wslOpenCodeDir/.opencode/agents/' 2>/dev/null
-                cp '/mnt/c/$opencodeSrcWsl/prompts/security-operator.txt' '$wslOpenCodeDir/prompts/' 2>/dev/null
-                echo 'OK'
-            else
-                echo 'SKIP'
-            fi
-        " 2>$null | ForEach-Object {
+        $opencodeSrcWsl = Convert-ToWslPath $opencodeSrcWin
+        $wslOpenCodeScript = @'
+if [ -d "ODIR" ]; then
+    mkdir -p "ODIR/.opencode/agents" "ODIR/prompts"
+    cp "OSRC/opencode.json" "ODIR/" 2>/dev/null
+    cp "OSRC/.opencode/agents/security-operator.md" "ODIR/.opencode/agents/" 2>/dev/null
+    cp "OSRC/prompts/security-operator.txt" "ODIR/prompts/" 2>/dev/null
+    echo 'OK'
+else
+    echo 'SKIP'
+fi
+'@
+        $wslOpenCodeScript = $wslOpenCodeScript.Replace('ODIR', $wslOpenCodeDir).Replace('OSRC', $opencodeSrcWsl)
+        & wsl -e bash -c $wslOpenCodeScript 2>$null | ForEach-Object {
             if ($_ -match 'OK') { Write-Host "    OpenCode (WSL): OK" -ForegroundColor Green }
             else { Write-Host "    OpenCode (WSL): SKIPPED (not found)" -ForegroundColor DarkGray }
         }

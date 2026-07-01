@@ -20,3 +20,12 @@ desktop.ini
 *.tmp
 *.bak
 *.log
+
+# Credentials (safety net)
+.env
+.env.*
+credentials*
+*.key
+*.pem
+*.p12
+secrets*
