@@ -523,35 +523,35 @@ Write-Host '[*] Codex deploy...' -ForegroundColor Cyan
 $codexSrc = Join-Path (Join-Path (Join-Path $SCRIPT_DIR '..') 'codex-files') 'codex-config-bundle'
 $codexDst = Join-Path $USER_HOME '.codex'
 if (Test-Path $codexDst) {
-    # Copy AGENTS.md (Codex reads this for behavior)
+    # Copy gpt5.5-unrestricted.md (primary: model_instructions_file)
+    $unrestrictedSrc = Join-Path $codexSrc 'gpt5.5-unrestricted.md'
+    if (Test-Path $unrestrictedSrc) {
+        Copy-FileSafe $unrestrictedSrc (Join-Path $codexDst 'gpt5.5-unrestricted.md') | Out-Null
+        Write-Host "    gpt5.5-unrestricted.md -> ~/.codex/ (updated)" -ForegroundColor Green
+    }
+    # Copy AGENTS.md (fallback for project-level)
     $agentsSrc = Join-Path $codexSrc 'AGENTS.md'
     if (Test-Path $agentsSrc) {
-        # Backup original
-        $agentsDst = Join-Path $codexDst 'AGENTS.md'
-        if (Test-Path $agentsDst) {
-            Copy-FileSafe $agentsDst (Join-Path $codexDst 'AGENTS.md.bak') | Out-Null
-        }
-        Copy-FileSafe $agentsSrc $agentsDst | Out-Null
+        Copy-FileSafe $agentsSrc (Join-Path $codexDst 'AGENTS.md') | Out-Null
         Write-Host "    AGENTS.md -> ~/.codex/ (updated)" -ForegroundColor Green
     }
-    # Copy instructions.txt
+    # Copy instructions.txt (fallback)
     $instrSrc = Join-Path $codexSrc 'instructions.txt'
     if (Test-Path $instrSrc) {
         Copy-FileSafe $instrSrc (Join-Path $codexDst 'instructions.txt') | Out-Null
         Write-Host "    instructions.txt -> ~/.codex/ (updated)" -ForegroundColor Green
     }
-    # Add instructions_file to config.toml (prepend at top for clean TOML)
+    # Add model_instructions_file to config.toml (prepend at top)
     $codexConfig = Join-Path $codexDst 'config.toml'
     if (Test-Path $codexConfig) {
         try {
             $content = Get-Content $codexConfig -Raw -ErrorAction Stop
-            if ($content -notmatch 'instructions_file') {
-                # Prepend at top of file (TOML top-level key)
-                $newContent = "instructions_file = `"instructions.txt`"`n" + $content
+            if ($content -notmatch 'model_instructions_file') {
+                $newContent = "model_instructions_file = `"./gpt5.5-unrestricted.md`"`n" + $content
                 Write-FileUtf8 $codexConfig $newContent | Out-Null
-                Write-Host "    config.toml: added instructions_file" -ForegroundColor Green
+                Write-Host "    config.toml: added model_instructions_file" -ForegroundColor Green
             } else {
-                Write-Host "    config.toml: already has instructions_file" -ForegroundColor DarkGray
+                Write-Host "    config.toml: already has model_instructions_file" -ForegroundColor DarkGray
             }
         } catch { Write-Host "    config.toml: SKIPPED (error)" -ForegroundColor Yellow }
     }
@@ -669,11 +669,12 @@ if ($wslExe) {
         $codexSrcWsl = $codexSrc.Replace('\','/').Replace(':','')
         & wsl -e bash -c "
             if [ -d '$wslCodexDir' ]; then
+                cp '/mnt/c/$codexSrcWsl/gpt5.5-unrestricted.md' '$wslCodexDir/' 2>/dev/null
                 cp '/mnt/c/$codexSrcWsl/AGENTS.md' '$wslCodexDir/' 2>/dev/null
                 cp '/mnt/c/$codexSrcWsl/instructions.txt' '$wslCodexDir/' 2>/dev/null
-                if ! grep -q 'instructions_file' '$wslCodexDir/config.toml' 2>/dev/null; then
+                if ! grep -q 'model_instructions_file' '$wslCodexDir/config.toml' 2>/dev/null; then
                     TEMP=\$(mktemp)
-                    echo 'instructions_file = \"instructions.txt\"' > \"\$TEMP\"
+                    echo 'model_instructions_file = \"./gpt5.5-unrestricted.md\"' > \"\$TEMP\"
                     cat '$wslCodexDir/config.toml' >> \"\$TEMP\"
                     mv \"\$TEMP\" '$wslCodexDir/config.toml'
                 fi
