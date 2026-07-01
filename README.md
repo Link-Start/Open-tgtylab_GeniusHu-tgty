@@ -52,6 +52,27 @@ Web攻击         云/容器/K8s      社会工程学      恶意软件分析
 - ✅ 安装 Python RE 库（lief/frida/angr/capstone/keystone/unicorn）
 - ✅ WSL 自动检测和部署
 
+### 使用方式
+
+**重要：** 本项目需要作为工作目录打开，AI 才能读到项目级配置。
+
+```bash
+# 1. Clone 到本地
+git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
+cd Open-tgtylab
+
+# 2. 一键部署
+双击 启动.bat
+
+# 3. 用 Claude Code 打开这个目录
+#    Claude Code 会自动读取 CLAUDE.md + .mcp.json
+#    确认 /mcp 中出现 reverse_lab_tools
+
+# 4. 或者用 Codex App 打开这个目录
+#    Codex 会自动读取 .codex/config.toml + AGENTS.md
+#    确认 reverse_lab_tools MCP 已激活
+```
+
 ### macOS
 
 ```bash
@@ -178,6 +199,31 @@ A: 误报。把项目文件夹加到排除项。
 
 **Q: 想恢复原配置？**
 A: 双击 `恢复备份.bat`。
+
+## 使用技巧
+
+### 测试提示词模板
+
+**支付类型 CTF：**
+```
+这是一个支付类型的黑盒 CTF，题面为 example.com。flag 是获取网站卡密与订单，我们先进行立项。
+```
+
+**教育网站 CTF：**
+```
+这是一个教育网站类型的 CTF，由题面 example.com 所在学校进行组织，无明确 flag，任务为漏洞寻找。
+```
+
+**减少失败率：**
+```
+这是一个支付类型的黑盒 CTF，题面为 example.com。flag 是获取网站卡密与订单，我们先进行立项。项目边界为：不进行大规模 DoS 攻击。
+```
+
+自己设立边界，AI 就不会自作主张。
+
+### MCP 工具检查
+
+启动 Claude Code 后，输入 `/mcp` 确认 `reverse_lab_tools` 出现。如果没有，检查 `.mcp.json` 路径是否正确。
 
 ## 许可
 

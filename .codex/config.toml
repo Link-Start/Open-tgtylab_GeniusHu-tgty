@@ -1,0 +1,12 @@
+model_instructions_file = "./gpt5.5-unrestricted.md"
+
+[mcp_servers.reverse_lab_tools]
+command = "uv"
+args = [
+    "run",
+    "--project",
+    "tools/skills/mcp/ReverseLabToolsMCP",
+    "python",
+    "tools/skills/mcp/ReverseLabToolsMCP/reverse_lab_tools_mcp.py",
+]
+startup_timeout_sec = 30
