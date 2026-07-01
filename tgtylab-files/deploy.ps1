@@ -652,6 +652,46 @@ if ($wslExe) {
             if ($_ -match 'OK') { Write-Host "    Hermes (WSL): OK" -ForegroundColor Green }
             else { Write-Host "    Hermes (WSL): SKIPPED (not found)" -ForegroundColor DarkGray }
         }
+
+        # WSL Codex
+        $wslCodexDir = "$wslHome/.codex"
+        $codexSrcWsl = $codexSrc.Replace('\','/').Replace(':','')
+        & wsl -e bash -c "
+            if [ -d '$wslCodexDir' ]; then
+                cp '/mnt/c/$codexSrcWsl/instructions.txt' '$wslCodexDir/' 2>/dev/null
+                if ! grep -q 'instructions_file' '$wslCodexDir/config.toml' 2>/dev/null; then
+                    TEMP=\$(mktemp)
+                    echo 'instructions_file = \"instructions.txt\"' > \"\$TEMP\"
+                    cat '$wslCodexDir/config.toml' >> \"\$TEMP\"
+                    mv \"\$TEMP\" '$wslCodexDir/config.toml'
+                fi
+                echo 'OK'
+            else
+                echo 'SKIP'
+            fi
+        " 2>$null | ForEach-Object {
+            if ($_ -match 'OK') { Write-Host "    Codex (WSL): OK" -ForegroundColor Green }
+            else { Write-Host "    Codex (WSL): SKIPPED (not found)" -ForegroundColor DarkGray }
+        }
+
+        # WSL OpenCode
+        $wslOpenCodeDir = "$wslHome/.config/opencode"
+        $opencodeSrcWin = Join-Path (Join-Path (Join-Path $SCRIPT_DIR '..') 'opencode-files') 'opencode-config-bundle'
+        $opencodeSrcWsl = $opencodeSrcWin.Replace('\','/').Replace(':','')
+        & wsl -e bash -c "
+            if [ -d '$wslOpenCodeDir' ]; then
+                mkdir -p '$wslOpenCodeDir/.opencode/agents' '$wslOpenCodeDir/prompts'
+                cp '/mnt/c/$opencodeSrcWsl/opencode.json' '$wslOpenCodeDir/' 2>/dev/null
+                cp '/mnt/c/$opencodeSrcWsl/.opencode/agents/security-operator.md' '$wslOpenCodeDir/.opencode/agents/' 2>/dev/null
+                cp '/mnt/c/$opencodeSrcWsl/prompts/security-operator.txt' '$wslOpenCodeDir/prompts/' 2>/dev/null
+                echo 'OK'
+            else
+                echo 'SKIP'
+            fi
+        " 2>$null | ForEach-Object {
+            if ($_ -match 'OK') { Write-Host "    OpenCode (WSL): OK" -ForegroundColor Green }
+            else { Write-Host "    OpenCode (WSL): SKIPPED (not found)" -ForegroundColor DarkGray }
+        }
     } else {
         Write-Host "    SKIPPED (WSL not available)" -ForegroundColor DarkGray
     }
