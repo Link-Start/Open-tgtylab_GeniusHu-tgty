@@ -578,19 +578,38 @@ if (Test-Path $codexDst) {
         Copy-FileSafe $instrSrc (Join-Path $codexDst 'instructions.txt') | Out-Null
         Write-Host "    instructions.txt -> ~/.codex/ (updated)" -ForegroundColor Green
     }
-    # Add model_instructions_file to config.toml (prepend at top)
+    # Add model_instructions_file + MCP server to config.toml
     $codexConfig = Join-Path $codexDst 'config.toml'
     if (Test-Path $codexConfig) {
         try {
             $content = Get-Content $codexConfig -Raw -ErrorAction Stop
+            $changed = $false
             if ($content -notmatch 'model_instructions_file') {
-                $newContent = "model_instructions_file = `"./gpt5.5-unrestricted.md`"`n" + $content
-                Write-FileUtf8 $codexConfig $newContent | Out-Null
-                Write-Host "    config.toml: added model_instructions_file" -ForegroundColor Green
-            } else {
-                Write-Host "    config.toml: already has model_instructions_file" -ForegroundColor DarkGray
+                $content = 'model_instructions_file = "./gpt5.5-unrestricted.md"' + "`n" + $content
+                $changed = $true
             }
-        } catch { Write-Host "    config.toml: SKIPPED (error)" -ForegroundColor Yellow }
+            if ($content -notmatch 'reverse_lab_tools') {
+                # Use absolute paths for Codex compatibility
+                $mcpProjectDir = [System.IO.Path]::GetFullPath((Join-Path (Join-Path (Join-Path $SCRIPT_DIR '..') 'tools') 'skills'))
+                $mcpProjectDir = Join-Path (Join-Path $mcpProjectDir 'mcp') 'ReverseLabToolsMCP'
+                $mcpPy = Join-Path $mcpProjectDir 'reverse_lab_tools_mcp.py'
+                $mcpBlock = @"
+
+[mcp_servers.reverse_lab_tools]
+command = "uv"
+args = ["run", "--project", "$mcpProjectDir", "python", "$mcpPy"]
+startup_timeout_sec = 30
+"@
+                $content = $content + $mcpBlock
+                $changed = $true
+            }
+            if ($changed) {
+                Write-FileUtf8 $codexConfig $content | Out-Null
+                Write-Host "    config.toml: updated (model_instructions + MCP)" -ForegroundColor Green
+            } else {
+                Write-Host "    config.toml: already configured" -ForegroundColor DarkGray
+            }
+        } catch { Write-Host "    config.toml: SKIPPED (error: $_)" -ForegroundColor Yellow }
     }
     Write-Host "    OK" -ForegroundColor Green
 } else { Write-Host "    SKIPPED (~/.codex/ not found)" -ForegroundColor DarkGray }
