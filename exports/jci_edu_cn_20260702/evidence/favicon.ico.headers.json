@@ -1,0 +1,19 @@
+{
+  "Server": "none",
+  "Date": "Thu, 02 Jul 2026 04:52:08 GMT",
+  "Content-Type": "image/x-icon",
+  "Content-Length": "2462",
+  "Connection": "close",
+  "X-Frame-Options": "SAMEORIGIN",
+  "Strict-Transport-Security": "max-age=15768000",
+  "Last-Modified": "Wed, 18 May 2022 11:45:22 GMT",
+  "Accept-Ranges": "bytes",
+  "ETag": "\"99e-5df47cad23880-gzip\"",
+  "X-XSS-Protection": "1; mode=block",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "no-referrer-when-downgrade",
+  "X-Download-Options": "noopen",
+  "X-Permitted-Cross-Domain-Policies": "master-only",
+  "Content-Security-Policy": "default-src 'self' *.conac.cn *.jiathis.com *.contrimetric.com p.ananas.chaoxing.com *.chaoxing.com *.jcu.edu.cn *.baidu.com *.bshare.cn *.qq.com *.kaipuyun.cn 'unsafe-inline' 'unsafe-eval' img-src 'self' data:;",
+  "Content-Language": "zh-CN"
+}

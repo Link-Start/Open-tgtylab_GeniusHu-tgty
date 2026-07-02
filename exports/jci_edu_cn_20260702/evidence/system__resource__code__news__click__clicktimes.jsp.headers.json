@@ -1,0 +1,21 @@
+{
+  "Server": "none",
+  "Date": "Thu, 02 Jul 2026 04:52:27 GMT",
+  "Content-Type": "text/html;charset=UTF-8",
+  "Content-Length": "0",
+  "Connection": "close",
+  "X-Frame-Options": "SAMEORIGIN",
+  "Strict-Transport-Security": "max-age=15768000",
+  "Vary": "User-Agent",
+  "Cache-Control": "no-store",
+  "Pragma": "no-cache",
+  "Expires": "Thu, 01 Jan 1970 00:00:00 GMT",
+  "Set-Cookie": "JSESSIONID=7B944186F55D106EDAE979F0387B94AC; Path=/; Secure; HttpOnly; SameSite=Lax",
+  "X-XSS-Protection": "1; mode=block",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "no-referrer-when-downgrade",
+  "X-Download-Options": "noopen",
+  "X-Permitted-Cross-Domain-Policies": "master-only",
+  "Content-Security-Policy": "default-src 'self' *.conac.cn *.jiathis.com *.contrimetric.com p.ananas.chaoxing.com *.chaoxing.com *.jcu.edu.cn *.baidu.com *.bshare.cn *.qq.com *.kaipuyun.cn 'unsafe-inline' 'unsafe-eval' img-src 'self' data:;",
+  "Content-Language": "zh-CN"
+}

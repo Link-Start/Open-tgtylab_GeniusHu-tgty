@@ -1,0 +1,22 @@
+{
+  "Server": "none",
+  "Date": "Thu, 02 Jul 2026 04:52:03 GMT",
+  "Content-Type": "text/css",
+  "Content-Length": "20",
+  "Connection": "close",
+  "X-Frame-Options": "SAMEORIGIN",
+  "Strict-Transport-Security": "max-age=31536000; includeSubdomains; preload",
+  "Last-Modified": "Thu, 18 Jun 2026 10:22:39 GMT",
+  "Cache-Control": "max-age=3600",
+  "Expires": "Thu, 02 Jul 2026 05:14:57 GMT",
+  "ETag": "\"14-654848e3d5520-gzip\"",
+  "X-XSS-Protection": "1; mode=block",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "no-referrer-when-downgrade",
+  "X-Download-Options": "noopen",
+  "X-Permitted-Cross-Domain-Policies": "master-only",
+  "Content-Security-Policy": "default-src 'self' *.conac.cn *.jiathis.com *.contrimetric.com p.ananas.chaoxing.com *.chaoxing.com *.jcu.edu.cn *.baidu.com *.bshare.cn *.qq.com *.kaipuyun.cn 'unsafe-inline' 'unsafe-eval' img-src 'self' data:;",
+  "Content-Language": "zh-CN",
+  "X-Wrd-Cache": "HIT",
+  "Accept-Ranges": "bytes"
+}

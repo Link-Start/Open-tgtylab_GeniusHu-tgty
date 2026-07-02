@@ -1,0 +1,145 @@
+{
+  "sourceMappingURL": [],
+  "api_like": [
+    {
+      "file": "root.body.txt",
+      "value": "/system/resource/js/vsbscreen.min.js"
+    },
+    {
+      "file": "root.body.txt",
+      "value": "/system/resource/js/counter.js"
+    },
+    {
+      "file": "root.body.txt",
+      "value": "/system/go.jsp?treeid=1409&apptype=treetemp&urltype=tree.TreeTempUrl"
+    },
+    {
+      "file": "system__resource__js__counter.js.body.txt",
+      "value": "/system/resource/code/datainput.jsp?owner="
+    }
+  ],
+  "js_paths": [
+    {
+      "file": "root.body.txt",
+      "value": "/system/resource/js/vsbscreen.min.js"
+    },
+    {
+      "file": "root.body.txt",
+      "value": "/system/resource/js/counter.js"
+    },
+    {
+      "file": "root.body.txt",
+      "value": "/index.jsp"
+    },
+    {
+      "file": "root.body.txt",
+      "value": "/system/go.jsp?treeid=1409&apptype=treetemp&urltype=tree.TreeTempUrl"
+    },
+    {
+      "file": "system__resource__js__counter.js.body.txt",
+      "value": "/system/resource/code/datainput.jsp?owner="
+    }
+  ],
+  "secrets": [],
+  "root_links": [
+    {
+      "raw": "favicon.ico",
+      "url": "https://www.jci.edu.cn/favicon.ico",
+      "host": "www.jci.edu.cn",
+      "path": "/favicon.ico"
+    },
+    {
+      "raw": "templates/styles/base.css",
+      "url": "https://www.jci.edu.cn/templates/styles/base.css",
+      "host": "www.jci.edu.cn",
+      "path": "/templates/styles/base.css"
+    },
+    {
+      "raw": "templates/scripts/es-checker.js",
+      "url": "https://www.jci.edu.cn/templates/scripts/es-checker.js",
+      "host": "www.jci.edu.cn",
+      "path": "/templates/scripts/es-checker.js"
+    },
+    {
+      "raw": "templates/scripts/jq.js",
+      "url": "https://www.jci.edu.cn/templates/scripts/jq.js",
+      "host": "www.jci.edu.cn",
+      "path": "/templates/scripts/jq.js"
+    },
+    {
+      "raw": "templates/scripts/flux.min.js",
+      "url": "https://www.jci.edu.cn/templates/scripts/flux.min.js",
+      "host": "www.jci.edu.cn",
+      "path": "/templates/scripts/flux.min.js"
+    },
+    {
+      "raw": "_sitegray/_sitegray_d.css",
+      "url": "https://www.jci.edu.cn/_sitegray/_sitegray_d.css",
+      "host": "www.jci.edu.cn",
+      "path": "/_sitegray/_sitegray_d.css"
+    },
+    {
+      "raw": "_sitegray/_sitegray.js",
+      "url": "https://www.jci.edu.cn/_sitegray/_sitegray.js",
+      "host": "www.jci.edu.cn",
+      "path": "/_sitegray/_sitegray.js"
+    },
+    {
+      "raw": "index.vsb.css",
+      "url": "https://www.jci.edu.cn/index.vsb.css",
+      "host": "www.jci.edu.cn",
+      "path": "/index.vsb.css"
+    },
+    {
+      "raw": "/system/resource/js/vsbscreen.min.js",
+      "url": "https://www.jci.edu.cn/system/resource/js/vsbscreen.min.js",
+      "host": "www.jci.edu.cn",
+      "path": "/system/resource/js/vsbscreen.min.js"
+    },
+    {
+      "raw": "/system/resource/js/counter.js",
+      "url": "https://www.jci.edu.cn/system/resource/js/counter.js",
+      "host": "www.jci.edu.cn",
+      "path": "/system/resource/js/counter.js"
+    },
+    {
+      "raw": "templates/images/splash0.jpg",
+      "url": "https://www.jci.edu.cn/templates/images/splash0.jpg",
+      "host": "www.jci.edu.cn",
+      "path": "/templates/images/splash0.jpg"
+    },
+    {
+      "raw": "templates/images/splash1.jpg",
+      "url": "https://www.jci.edu.cn/templates/images/splash1.jpg",
+      "host": "www.jci.edu.cn",
+      "path": "/templates/images/splash1.jpg"
+    },
+    {
+      "raw": "templates/images/splash2.jpg",
+      "url": "https://www.jci.edu.cn/templates/images/splash2.jpg",
+      "host": "www.jci.edu.cn",
+      "path": "/templates/images/splash2.jpg"
+    },
+    {
+      "raw": "https://www.jcu.edu.cn/home.htm",
+      "url": "https://www.jcu.edu.cn/home.htm",
+      "host": "www.jcu.edu.cn",
+      "path": "/home.htm"
+    },
+    {
+      "raw": "/system/go.jsp?treeid=1409&apptype=treetemp&urltype=tree.TreeTempUrl",
+      "url": "https://www.jci.edu.cn/system/go.jsp?treeid=1409&apptype=treetemp&urltype=tree.TreeTempUrl",
+      "host": "www.jci.edu.cn",
+      "path": "/system/go.jsp"
+    },
+    {
+      "raw": "https://www.jcu.edu.cn/english/",
+      "url": "https://www.jcu.edu.cn/english/",
+      "host": "www.jcu.edu.cn",
+      "path": "/english/"
+    }
+  ],
+  "same_host_page_candidates": [
+    "https://www.jci.edu.cn/system/go.jsp?treeid=1409&apptype=treetemp&urltype=tree.TreeTempUrl"
+  ]
+}
