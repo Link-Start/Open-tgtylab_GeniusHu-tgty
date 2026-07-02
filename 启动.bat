@@ -4,6 +4,7 @@ title open-tgtylab Deploy
 
 set "SCRIPT_DIR=%~dp0"
 set "PS_SCRIPT=%SCRIPT_DIR%tgtylab-files\deploy.ps1"
+set "TOOL_SCRIPT=%SCRIPT_DIR%tgtylab-files\install_tools.ps1"
 
 if not exist "%PS_SCRIPT%" (
     echo [!] deploy.ps1 not found
@@ -18,8 +19,10 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+REM Run deploy (config + tools + MCP)
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%PS_SCRIPT%"
 if %errorlevel% neq 0 (
     echo [!] Deploy failed. Try running as administrator.
     pause
 )
+
