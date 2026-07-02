@@ -54,23 +54,18 @@ Web攻击         云/容器/K8s      社会工程学      恶意软件分析
 
 ### 使用方式
 
-**重要：** 本项目需要作为工作目录打开，AI 才能读到项目级配置。
+**⚠️ 必须用 Codex 打开 `open-tgtylab` 目录，不能打开父目录！**
 
 ```bash
 # 1. Clone 到本地
 git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
-cd Open-tgtylab
+cd open-tgtylab
 
-# 2. 一键部署
-双击 启动.bat
+# 2. 一键部署（双击 启动.bat）
 
-# 3. 用 Claude Code 打开这个目录
-#    Claude Code 会自动读取 CLAUDE.md + .mcp.json
+# 3. 用 Codex 打开这个目录
+#    Codex → Open Folder → 选择 open-tgtylab 文件夹
 #    确认 /mcp 中出现 reverse_lab_tools
-
-# 4. 或者用 Codex App 打开这个目录
-#    Codex 会自动读取 .codex/config.toml + AGENTS.md
-#    确认 reverse_lab_tools MCP 已激活
 ```
 
 ### macOS
