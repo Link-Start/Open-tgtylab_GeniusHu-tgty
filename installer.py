@@ -1,662 +1,447 @@
 #!/usr/bin/env python3
-"""open-tgtylab GUI Installer — 一键可控部署"""
+"""open-tgtylab 安装器 v6.0"""
 
 import json
-import os
 import shutil
 import subprocess
 import sys
 import threading
 from pathlib import Path
-from tkinter import (
-    BooleanVar,
-    Button,
-    Checkbutton,
-    END,
-    Frame,
-    Label,
-    messagebox,
-    StringVar,
-    Text,
-    Tk,
-    Toplevel,
-    BOTH,
-    LEFT,
-    RIGHT,
-    X,
-    Y,
-    W,
-    E,
-    N,
-    S,
-    WORD,
-    DISABLED,
-    NORMAL,
-)
-from tkinter.ttk import (
-    Button as TtkButton,
-    Checkbutton as TtkCheck,
-    Frame as TtkFrame,
-    Label as TtkLabel,
-    Labelframe,
-    Progressbar,
-    Scrollbar,
-    Separator,
-    Style,
-)
 
-# ── Paths ──
-SCRIPT_DIR = Path(__file__).resolve().parent
-BUNDLE_DIR = SCRIPT_DIR / "tgtylab-files" / "config-bundle"
-USER_HOME = Path.home()
-CLAUDE_DIR = USER_HOME / ".claude"
-CODEX_DIR = USER_HOME / ".codex"
-HERMES_DIR = USER_HOME / ".hermes"
-OPENCODE_DIR = USER_HOME / ".config" / "opencode"
-MCP_DIR = SCRIPT_DIR / "tools" / "skills" / "mcp" / "ReverseLabToolsMCP"
-SKILL_SRC = SCRIPT_DIR / ".claude" / "skills" / "reverse-flow"
+import customtkinter as ctk
 
-# Claude Code config dirs to check
-CLAUDE_DIRS = [CLAUDE_DIR]
-for candidate in [
-    USER_HOME / "AppData" / "Roaming" / "claude",
-    USER_HOME / "AppData" / "Roaming" / "Claude",
-    USER_HOME / "AppData" / "Roaming" / "Claude-3p",
-    USER_HOME / "AppData" / "Local" / "claude-code",
-    USER_HOME / "AppData" / "Local" / "claude",
-    USER_HOME / "AppData" / "Local" / "Claude",
-    USER_HOME / "AppData" / "Local" / "Claude-3p",
+ctk.set_appearance_mode("dark")
+
+# ── 路径 ──
+ROOT = Path(__file__).resolve().parent
+BUNDLE = ROOT / "tgtylab-files" / "config-bundle"
+HOME = Path.home()
+CLAUDE = HOME / ".claude"
+CODEX = HOME / ".codex"
+HERMES = HOME / ".hermes"
+OPENCODE = HOME / ".config" / "opencode"
+MCP = ROOT / "tools" / "skills" / "mcp" / "ReverseLabToolsMCP"
+SKILL = ROOT / ".claude" / "skills" / "reverse-flow"
+
+DIRS = [CLAUDE]
+for p in [
+    HOME / "AppData" / "Roaming" / "claude",
+    HOME / "AppData" / "Roaming" / "Claude",
+    HOME / "AppData" / "Roaming" / "Claude-3p",
+    HOME / "AppData" / "Local" / "claude-code",
+    HOME / "AppData" / "Local" / "Claude",
+    HOME / "AppData" / "Local" / "Claude-3p",
 ]:
-    if candidate.exists() and candidate != CLAUDE_DIR:
-        CLAUDE_DIRS.append(candidate)
+    if p.exists() and p != CLAUDE:
+        DIRS.append(p)
 
 
-def safe_copy(src: Path, dst: Path) -> bool:
+def _cp(src, dst):
     try:
-        dst.parent.mkdir(parents=True, exist_ok=True)
+        Path(dst).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(str(src), str(dst))
         return True
-    except Exception:
+    except:
         return False
 
-
-def safe_mkdir(path: Path) -> bool:
+def _mkdir(p):
     try:
-        path.mkdir(parents=True, exist_ok=True)
+        Path(p).mkdir(parents=True, exist_ok=True)
         return True
-    except Exception:
+    except:
         return False
 
-
-def write_utf8(path: Path, content: str) -> bool:
+def _write(p, c):
     try:
-        path.write_text(content, encoding="utf-8")
+        Path(p).write_text(c, encoding="utf-8")
         return True
-    except Exception:
+    except:
         return False
 
-
-def merge_settings_json(path: Path) -> bool:
-    """Merge bypassPermissions + MCP server into settings.json"""
+def _merge_settings(path):
     try:
-        if path.exists():
-            data = json.loads(path.read_text(encoding="utf-8-sig"))
-        else:
-            data = {}
-
-        changed = False
-        if not data.get("permissions"):
-            data["permissions"] = {"defaultMode": "bypassPermissions"}
-            changed = True
-        elif data["permissions"].get("defaultMode") != "bypassPermissions":
-            data["permissions"]["defaultMode"] = "bypassPermissions"
-            changed = True
-
-        if not data.get("skipDangerousModePermissionPrompt"):
-            data["skipDangerousModePermissionPrompt"] = True
-            changed = True
-
-        mcp_py = str(MCP_DIR / "reverse_lab_tools_mcp.py")
-        if MCP_DIR.exists() and not data.get("mcpServers", {}).get("reverse_lab_tools"):
-            if "mcpServers" not in data:
-                data["mcpServers"] = {}
-            data["mcpServers"]["reverse_lab_tools"] = {
-                "command": "uv",
-                "args": ["run", "--project", str(MCP_DIR), "python", mcp_py],
-                "env": {},
-            }
-            changed = True
-
-        if changed or not path.exists():
-            write_utf8(path, json.dumps(data, indent=2, ensure_ascii=False))
+        p = Path(path)
+        d = json.loads(p.read_text(encoding="utf-8-sig")) if p.exists() else {}
+        ch = False
+        if not d.get("permissions"):
+            d["permissions"] = {"defaultMode": "bypassPermissions"}; ch = True
+        elif d["permissions"].get("defaultMode") != "bypassPermissions":
+            d["permissions"]["defaultMode"] = "bypassPermissions"; ch = True
+        if not d.get("skipDangerousModePermissionPrompt"):
+            d["skipDangerousModePermissionPrompt"] = True; ch = True
+        mcp_py = str(MCP / "reverse_lab_tools_mcp.py")
+        if MCP.exists() and not d.get("mcpServers", {}).get("reverse_lab_tools"):
+            d.setdefault("mcpServers", {})["reverse_lab_tools"] = {
+                "command": "uv", "args": ["run", "--project", str(MCP), "python", mcp_py], "env": {}
+            }; ch = True
+        if ch or not p.exists():
+            _write(path, json.dumps(d, indent=2, ensure_ascii=False))
         return True
-    except Exception:
+    except:
         return False
 
-
-def merge_codex_config(path: Path) -> bool:
-    """Add model_instructions_file + MCP server to codex config.toml"""
+def _merge_codex(path):
     try:
-        content = path.read_text(encoding="utf-8") if path.exists() else ""
-        changed = False
-
-        if "model_instructions_file" not in content:
-            content = 'model_instructions_file = "./gpt5.5-unrestricted.md"\n' + content
-            changed = True
-
-        if "reverse_lab_tools" not in content and MCP_DIR.exists():
-            mcp_py = str(MCP_DIR / "reverse_lab_tools_mcp.py")
-            content += f"""
-[mcp_servers.reverse_lab_tools]
-command = "uv"
-args = [
-    "run",
-    "--project",
-    "{MCP_DIR}",
-    "python",
-    "{mcp_py}",
-]
-startup_timeout_sec = 30
-"""
-            changed = True
-
-        if changed:
-            write_utf8(path, content)
+        p = Path(path)
+        c = p.read_text(encoding="utf-8") if p.exists() else ""
+        ch = False
+        if "model_instructions_file" not in c:
+            c = 'model_instructions_file = "./gpt5.5-unrestricted.md"\n' + c; ch = True
+        if "reverse_lab_tools" not in c and MCP.exists():
+            mcp_py = str(MCP / "reverse_lab_tools_mcp.py")
+            c += f'\n[mcp_servers.reverse_lab_tools]\ncommand = "uv"\nargs = ["run","--project","{MCP}","python","{mcp_py}"]\nstartup_timeout_sec = 30\n'
+            ch = True
+        if ch: _write(path, c)
         return True
-    except Exception:
+    except:
         return False
 
 
-class InstallerGUI:
+class App(ctk.CTk):
     def __init__(self):
-        self.root = Tk()
-        self.root.title("open-tgtylab Installer")
-        self.root.geometry("680x820")
-        self.root.resizable(False, False)
+        super().__init__()
+        self.title("open-tgtylab")
+        self.geometry("700x780")
+        self.resizable(False, False)
 
-        # Dark theme colors
-        self.bg = "#1e1e2e"
-        self.fg = "#cdd6f4"
-        self.accent = "#89b4fa"
-        self.green = "#a6e3a1"
-        self.red = "#f38ba8"
-        self.yellow = "#f9e2af"
-        self.surface = "#313244"
-        self.surface2 = "#45475a"
+        F = "Microsoft YaHei UI"
+        self.ft = ctk.CTkFont(family=F, size=20, weight="bold")
+        self.fb = ctk.CTkFont(family=F, size=13, weight="bold")
+        self.fn = ctk.CTkFont(family=F, size=13)
+        self.fl = ctk.CTkFont(family="Consolas", size=12)
 
-        self.root.configure(bg=self.bg)
+        # 标题
+        hdr = ctk.CTkFrame(self, fg_color="#1a1a2e", corner_radius=0, height=52)
+        hdr.pack(fill="x")
+        hdr.pack_propagate(False)
+        ctk.CTkLabel(hdr, text="🐙 open-tgtylab", font=self.ft, text_color="#6c63ff").pack(side="left", padx=16, pady=10)
+        ctk.CTkLabel(hdr, text="一键部署 · 全平台 · 无审查", font=self.fn, text_color="#888").pack(side="left", padx=8)
 
-        self.log_lines = []
-        self._build_ui()
+        body = ctk.CTkFrame(self, fg_color="transparent")
+        body.pack(fill="both", expand=True, padx=20, pady=12)
 
-    def _build_ui(self):
-        # Header
-        header = Frame(self.root, bg=self.accent, height=50)
-        header.pack(fill=X)
-        header.pack_propagate(False)
-        Label(header, text="🐙 open-tgtylab", font=("Segoe UI", 18, "bold"),
-              bg=self.accent, fg=self.bg).pack(side=LEFT, padx=15)
-        Label(header, text="AI Agent 越狱部署工具", font=("Segoe UI", 11),
-              bg=self.accent, fg=self.bg).pack(side=LEFT, padx=5)
+        # 平台
+        ctk.CTkLabel(body, text="选择平台", font=self.fb, text_color="#888").pack(anchor="w")
+        pf = ctk.CTkFrame(body, fg_color="#1a1a1a", corner_radius=10)
+        pf.pack(fill="x", pady=(4, 12), ipady=8)
 
-        # Main content
-        main = Frame(self.root, bg=self.bg)
-        main.pack(fill=BOTH, expand=True, padx=15, pady=10)
+        self.v_claude = ctk.BooleanVar(value=True)
+        self.v_codex = ctk.BooleanVar(value=True)
+        self.v_hermes = ctk.BooleanVar(value=True)
+        self.v_open = ctk.BooleanVar(value=True)
 
-        # ── Platform selection ──
-        pf = Labelframe(main, text=" 平台选择 ", style="Custom.TLabelframe")
-        pf.pack(fill=X, pady=(0, 10))
+        r1 = ctk.CTkFrame(pf, fg_color="transparent")
+        r1.pack(fill="x", padx=16)
+        for txt, var in [("Claude Code / Desktop", self.v_claude), ("Codex App", self.v_codex),
+                         ("Hermes", self.v_hermes), ("OpenCode", self.v_open)]:
+            ctk.CTkCheckBox(r1, text=txt, variable=var, font=self.fn, text_color="#ddd",
+                           fg_color="#6c63ff", hover_color="#7c74ff", border_color="#444",
+                           corner_radius=6).pack(side="left", padx=(0, 12))
 
-        self.var_claude = BooleanVar(value=True)
-        self.var_codex = BooleanVar(value=True)
-        self.var_hermes = BooleanVar(value=True)
-        self.var_opencode = BooleanVar(value=True)
+        # 功能
+        ctk.CTkLabel(body, text="选择功能", font=self.fb, text_color="#888").pack(anchor="w")
+        cf = ctk.CTkFrame(body, fg_color="#1a1a1a", corner_radius=10)
+        cf.pack(fill="x", pady=(4, 12), ipady=8)
 
-        row1 = Frame(pf, bg=self.surface)
-        row1.pack(fill=X, padx=10, pady=5)
-        Checkbutton(row1, text="Claude Code / Desktop", variable=self.var_claude,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT, padx=(0, 20))
-        Checkbutton(row1, text="Codex App", variable=self.var_codex,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT, padx=(0, 20))
-        Checkbutton(row1, text="Hermes", variable=self.var_hermes,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT, padx=(0, 20))
-        Checkbutton(row1, text="OpenCode", variable=self.var_opencode,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT)
+        self.v_jb = ctk.BooleanVar(value=True)
+        self.v_mcp = ctk.BooleanVar(value=True)
+        self.v_sk = ctk.BooleanVar(value=True)
+        self.v_wf = ctk.BooleanVar(value=True)
+        self.v_hk = ctk.BooleanVar(value=True)
+        self.v_py = ctk.BooleanVar(value=True)
 
-        # ── Component selection ──
-        cf = Labelframe(main, text=" 部署组件 ", style="Custom.TLabelframe")
-        cf.pack(fill=X, pady=(0, 10))
+        r2 = ctk.CTkFrame(cf, fg_color="transparent")
+        r2.pack(fill="x", padx=16)
+        for txt, var in [("越狱配置", self.v_jb), ("MCP工具", self.v_mcp),
+                         ("逆向Skill", self.v_sk), ("CTF流水线", self.v_wf)]:
+            ctk.CTkCheckBox(r2, text=txt, variable=var, font=self.fn, text_color="#ddd",
+                           fg_color="#6c63ff", hover_color="#7c74ff", border_color="#444",
+                           corner_radius=6).pack(side="left", padx=(0, 12))
 
-        self.var_jailbreak = BooleanVar(value=True)
-        self.var_mcp = BooleanVar(value=True)
-        self.var_skills = BooleanVar(value=True)
-        self.var_workflows = BooleanVar(value=True)
-        self.var_hooks = BooleanVar(value=True)
-        self.var_python_re = BooleanVar(value=True)
+        r3 = ctk.CTkFrame(cf, fg_color="transparent")
+        r3.pack(fill="x", padx=16, pady=(4, 0))
+        for txt, var in [("MCP Hook", self.v_hk), ("Python RE库", self.v_py)]:
+            ctk.CTkCheckBox(r3, text=txt, variable=var, font=self.fn, text_color="#ddd",
+                           fg_color="#6c63ff", hover_color="#7c74ff", border_color="#444",
+                           corner_radius=6).pack(side="left", padx=(0, 12))
 
-        row2 = Frame(cf, bg=self.surface)
-        row2.pack(fill=X, padx=10, pady=5)
-        Checkbutton(row2, text="越狱配置 (562 示例)", variable=self.var_jailbreak,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT, padx=(0, 20))
-        Checkbutton(row2, text="MCP 工具 (150+)", variable=self.var_mcp,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT, padx=(0, 20))
-        Checkbutton(row2, text="逆向 Skill", variable=self.var_skills,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT)
+        # 按钮
+        bf = ctk.CTkFrame(body, fg_color="transparent")
+        bf.pack(fill="x", pady=(0, 8))
 
-        row3 = Frame(cf, bg=self.surface)
-        row3.pack(fill=X, padx=10, pady=(0, 5))
-        Checkbutton(row3, text="CTF 流水线 (5个)", variable=self.var_workflows,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT, padx=(0, 20))
-        Checkbutton(row3, text="MCP Hook", variable=self.var_hooks,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT, padx=(0, 20))
-        Checkbutton(row3, text="Python RE 库", variable=self.var_python_re,
-                    bg=self.surface, fg=self.fg, selectcolor=self.surface2,
-                    activebackground=self.surface, activeforeground=self.fg).pack(side=LEFT)
+        self.btn_go = ctk.CTkButton(bf, text="▶  一键部署", font=self.fb,
+                                    fg_color="#6c63ff", hover_color="#5b52ee",
+                                    text_color="white", corner_radius=8,
+                                    height=44, command=self._deploy_start)
+        self.btn_go.pack(side="left", fill="x", expand=True, padx=(0, 6))
 
-        # ── Action buttons ──
-        btn_frame = Frame(main, bg=self.bg)
-        btn_frame.pack(fill=X, pady=(0, 10))
+        self.btn_v = ctk.CTkButton(bf, text="验证", font=self.fn,
+                                   fg_color="#1a1a1a", hover_color="#2a2a2a",
+                                   text_color="#6c63ff", border_width=1,
+                                   border_color="#6c63ff", corner_radius=8,
+                                   height=44, command=self._verify_start)
+        self.btn_v.pack(side="left", padx=6)
 
-        self.btn_deploy = Button(btn_frame, text="▶ 部署", font=("Segoe UI", 12, "bold"),
-                                 bg=self.green, fg=self.bg, relief="flat", padx=30, pady=8,
-                                 command=self._start_deploy)
-        self.btn_deploy.pack(side=LEFT, padx=(0, 10))
+        self.btn_x = ctk.CTkButton(bf, text="卸载", font=self.fn,
+                                   fg_color="#1a1a1a", hover_color="#2a1a1a",
+                                   text_color="#f44", border_width=1,
+                                   border_color="#f44", corner_radius=8,
+                                   height=44, command=self._uninstall_start)
+        self.btn_x.pack(side="left", padx=(6, 0))
 
-        self.btn_verify = Button(btn_frame, text="🔍 验证", font=("Segoe UI", 12),
-                                 bg=self.accent, fg=self.bg, relief="flat", padx=20, pady=8,
-                                 command=self._start_verify)
-        self.btn_verify.pack(side=LEFT, padx=(0, 10))
+        # 日志
+        self.log = ctk.CTkTextbox(body, font=self.fl, fg_color="#111",
+                                  text_color="#0f0", corner_radius=10,
+                                  border_width=1, border_color="#222",
+                                  wrap="word")
+        self.log.pack(fill="both", expand=True, pady=(8, 0))
+        self.log.configure(state="disabled")
 
-        self.btn_uninstall = Button(btn_frame, text="🗑 卸载", font=("Segoe UI", 12),
-                                    bg=self.red, fg=self.bg, relief="flat", padx=20, pady=8,
-                                    command=self._start_uninstall)
-        self.btn_uninstall.pack(side=LEFT)
+        self._log("就绪。选择后点击「一键部署」。", "#0f0")
+        self._log(f"项目：{ROOT}", "#666")
+        self._log(f"检测到 {len(DIRS)} 个 Claude 目录", "#666")
 
-        # ── Progress ──
-        self.progress = Progressbar(main, mode="indeterminate", style="Custom.Horizontal.TProgressbar")
-        self.progress.pack(fill=X, pady=(0, 5))
+    def _log(self, m, c="#0f0"):
+        self.log.configure(state="normal")
+        tb = self.log._textbox  # underlying tkinter Text widget
+        tb.insert("end", m + "\n")
+        tb.tag_configure(c, foreground=c)
+        n = int(tb.index("end-1c").split(".")[0])
+        tb.tag_add(c, f"{n}.0", f"{n}.end")
+        tb.see("end")
+        self.log.configure(state="disabled")
 
-        # ── Log output ──
-        log_frame = Frame(main, bg=self.bg)
-        log_frame.pack(fill=BOTH, expand=True)
+    def _ok(self, m): self._log(f"  ✅ {m}", "#0f0")
+    def _err(self, m): self._log(f"  ❌ {m}", "#f44")
+    def _warn(self, m): self._log(f"  ⚠️  {m}", "#fa0")
+    def _dim(self, m): self._log(m, "#666")
+    def _sec(self, m): self._log(m, "#6cf")
 
-        self.log_text = Text(log_frame, bg=self.surface, fg=self.fg, font=("Consolas", 10),
-                             wrap=WORD, relief="flat", padx=10, pady=10)
-        scrollbar = Scrollbar(log_frame, command=self.log_text.yview)
-        self.log_text.configure(yscrollcommand=scrollbar.set)
-        scrollbar.pack(side=RIGHT, fill=Y)
-        self.log_text.pack(fill=BOTH, expand=True)
+    def _btns(self, on):
+        s = "normal" if on else "disabled"
+        self.btn_go.configure(state=s)
+        self.btn_v.configure(state=s)
+        self.btn_x.configure(state=s)
 
-        self._log("open-tgtylab Installer ready.", "info")
-        self._log(f"Project: {SCRIPT_DIR}", "gray")
-        self._log(f"Home: {USER_HOME}", "gray")
-        self._log("", "gray")
-
-    def _log(self, msg: str, level: str = "normal"):
-        colors = {
-            "info": self.accent,
-            "success": self.green,
-            "error": self.red,
-            "warning": self.yellow,
-            "gray": self.surface2,
-            "normal": self.fg,
-        }
-        self.log_text.configure(state=NORMAL)
-        self.log_text.insert(END, msg + "\n")
-        self.log_text.tag_configure(level, foreground=colors.get(level, self.fg))
-        # Apply tag to the last line
-        last_line = int(self.log_text.index("end-1c").split(".")[0])
-        self.log_text.tag_add(level, f"{last_line}.0", f"{last_line}.end")
-        self.log_text.see(END)
-        self.log_text.configure(state=DISABLED)
-        self.root.update_idletasks()
-
-    def _set_buttons(self, enabled: bool):
-        state = NORMAL if enabled else DISABLED
-        self.btn_deploy.configure(state=state)
-        self.btn_verify.configure(state=state)
-        self.btn_uninstall.configure(state=state)
-
-    def _start_deploy(self):
-        self._set_buttons(False)
-        self.progress.start(10)
+    # ── 部署 ──
+    def _deploy_start(self):
+        self._btns(False)
         threading.Thread(target=self._deploy, daemon=True).start()
-
-    def _start_verify(self):
-        self._set_buttons(False)
-        self.progress.start(10)
-        threading.Thread(target=self._verify, daemon=True).start()
-
-    def _start_uninstall(self):
-        if not messagebox.askyesno("确认卸载", "确定要卸载 open-tgtylab 配置吗？"):
-            return
-        self._set_buttons(False)
-        self.progress.start(10)
-        threading.Thread(target=self._uninstall, daemon=True).start()
 
     def _deploy(self):
         try:
-            self._log("=" * 50, "info")
-            self._log("  open-tgtylab Deploy", "info")
-            self._log("=" * 50, "info")
-            self._log("", "normal")
+            ok = 0; fail = 0
+            self._sec("═" * 48)
+            self._sec("  开始部署")
+            self._sec("═" * 48)
 
-            ok = 0
-            fail = 0
-
-            # ── Claude Code / Desktop ──
-            if self.var_claude.get():
-                self._log("[Claude Code / Desktop]", "info")
-                for d in CLAUDE_DIRS:
-                    self._log(f"  Deploying to: {d}", "gray")
-
-                    if self.var_jailbreak.get():
-                        # CLAUDE.md
-                        src = BUNDLE_DIR / "CLAUDE.md"
-                        dst = d / "CLAUDE.md"
-                        if src.exists() and safe_copy(src, dst):
-                            self._log(f"    CLAUDE.md: OK ({dst.stat().st_size} bytes)", "success")
-                            ok += 1
-                        else:
-                            self._log("    CLAUDE.md: FAIL", "error")
-                            fail += 1
-
-                        # system-prompt.md
-                        src = BUNDLE_DIR / "system-prompt.md"
-                        dst = d / "system-prompt.md"
-                        if src.exists() and safe_copy(src, dst):
-                            self._log(f"    system-prompt.md: OK", "success")
-                            ok += 1
-                        else:
-                            self._log("    system-prompt.md: FAIL", "error")
-                            fail += 1
-
-                        # settings.json
-                        if merge_settings_json(d / "settings.json"):
-                            self._log("    settings.json: OK", "success")
-                            ok += 1
-                        else:
-                            self._log("    settings.json: FAIL", "error")
-                            fail += 1
-
-                        # config.toml
-                        if write_utf8(d / "config.toml", 'model_instructions_file = "system-prompt.md"'):
-                            self._log("    config.toml: OK", "success")
-                            ok += 1
-
-                    # Hooks
-                    if self.var_hooks.get():
-                        hooks_dir = d / ".claude" / "hooks"
-                        safe_mkdir(hooks_dir)
-                        hook_src = SCRIPT_DIR / ".claude" / "hooks" / "pre-tool-call.sh"
-                        if hook_src.exists() and safe_copy(hook_src, hooks_dir / "pre-tool-call.sh"):
-                            self._log("    hooks: OK", "success")
-                            ok += 1
-
-                    # Workflows
-                    if self.var_workflows.get():
-                        wf_dir = d / ".claude" / "workflows"
-                        safe_mkdir(wf_dir)
-                        wf_src = SCRIPT_DIR / ".claude" / "workflows"
-                        if wf_src.exists():
-                            count = 0
-                            for f in wf_src.glob("*.js"):
-                                if safe_copy(f, wf_dir / f.name):
-                                    count += 1
-                            self._log(f"    workflows: OK ({count} files)", "success")
-                            ok += 1
-
-                    # Skills
-                    if self.var_skills.get() and SKILL_SRC.exists():
-                        skill_dst = d / "skills" / "reverse-flow"
-                        safe_mkdir(skill_dst)
+            if self.v_claude.get():
+                self._sec("▶ Claude Code / Desktop")
+                for d in DIRS:
+                    self._dim(f"  → {d}")
+                    if self.v_jb.get():
+                        for s, n in [("CLAUDE.md","CLAUDE.md"),("system-prompt.md","system-prompt.md")]:
+                            src = BUNDLE / s
+                            if src.exists() and _cp(src, d / n):
+                                self._ok(f"{n}（{(d/n).stat().st_size}字节）"); ok += 1
+                            else: self._err(n); fail += 1
+                        if _merge_settings(d / "settings.json"):
+                            self._ok("settings.json"); ok += 1
+                        else: self._err("settings.json"); fail += 1
+                        _write(d / "config.toml", 'model_instructions_file = "system-prompt.md"')
+                        self._ok("config.toml"); ok += 1
+                    if self.v_hk.get():
+                        hd = d / ".claude" / "hooks"; _mkdir(hd)
+                        hs = ROOT / ".claude" / "hooks" / "pre-tool-call.sh"
+                        if hs.exists() and _cp(hs, hd / "pre-tool-call.sh"):
+                            self._ok("拦截钩子"); ok += 1
+                    if self.v_wf.get():
+                        wd = d / ".claude" / "workflows"; _mkdir(wd)
+                        ws = ROOT / ".claude" / "workflows"
+                        cnt = 0
+                        if ws.exists():
+                            for f in ws.glob("*.js"):
+                                if _cp(f, wd / f.name): cnt += 1
+                        self._ok(f"流水线（{cnt}个）"); ok += 1
+                    if self.v_sk.get() and SKILL.exists():
+                        sd = d / "skills" / "reverse-flow"; _mkdir(sd)
                         for sub in ["references", "scripts", "agents"]:
-                            src_dir = SKILL_SRC / sub
-                            if src_dir.exists():
-                                dst_dir = skill_dst / sub
-                                safe_mkdir(dst_dir)
-                                for f in src_dir.iterdir():
-                                    safe_copy(f, dst_dir / f.name)
-                        safe_copy(SKILL_SRC / "SKILL.md", skill_dst / "SKILL.md")
-                        safe_copy(SKILL_SRC / "README.md", skill_dst / "README.md")
-                        self._log("    skills: OK", "success")
-                        ok += 1
+                            ss = SKILL / sub
+                            if ss.exists():
+                                dd = sd / sub; _mkdir(dd)
+                                for f in ss.iterdir(): _cp(f, dd / f.name)
+                        _cp(SKILL / "SKILL.md", sd / "SKILL.md")
+                        self._ok("逆向技能包"); ok += 1
+                self._dim("")
 
-                self._log("", "normal")
-
-            # ── Codex ──
-            if self.var_codex.get():
-                self._log("[Codex App]", "info")
-
-                if self.var_jailbreak.get():
-                    # gpt5.5-unrestricted.md
-                    src = SCRIPT_DIR / ".codex" / "gpt5.5-unrestricted.md"
-                    safe_mkdir(CODEX_DIR)
-                    if src.exists() and safe_copy(src, CODEX_DIR / "gpt5.5-unrestricted.md"):
-                        self._log("    gpt5.5-unrestricted.md: OK", "success")
-                        ok += 1
-
-                    # AGENTS.md
-                    src = SCRIPT_DIR / "AGENTS.md"
-                    if src.exists() and safe_copy(src, CODEX_DIR / "AGENTS.md"):
-                        self._log("    AGENTS.md: OK", "success")
-                        ok += 1
-
-                    # config.toml
-                    if merge_codex_config(CODEX_DIR / "config.toml"):
-                        self._log("    config.toml: OK (model_instructions_file + MCP)", "success")
-                        ok += 1
-
-                # Skills
-                if self.var_skills.get() and SKILL_SRC.exists():
-                    skill_dst = CODEX_DIR / "skills" / "reverse-flow"
-                    safe_mkdir(skill_dst)
+            if self.v_codex.get():
+                self._sec("▶ Codex App")
+                _mkdir(CODEX)
+                if self.v_jb.get():
+                    src = ROOT / ".codex" / "gpt5.5-unrestricted.md"
+                    if src.exists() and _cp(src, CODEX / "gpt5.5-unrestricted.md"):
+                        self._ok("越狱指令"); ok += 1
+                    src = ROOT / "AGENTS.md"
+                    if src.exists() and _cp(src, CODEX / "AGENTS.md"):
+                        self._ok("执行协议"); ok += 1
+                    if _merge_codex(CODEX / "config.toml"):
+                        self._ok("配置文件"); ok += 1
+                if self.v_sk.get() and SKILL.exists():
+                    sd = CODEX / "skills" / "reverse-flow"; _mkdir(sd)
                     for sub in ["references", "scripts", "agents"]:
-                        src_dir = SKILL_SRC / sub
-                        if src_dir.exists():
-                            dst_dir = skill_dst / sub
-                            safe_mkdir(dst_dir)
-                            for f in src_dir.iterdir():
-                                safe_copy(f, dst_dir / f.name)
-                    safe_copy(SKILL_SRC / "SKILL.md", skill_dst / "SKILL.md")
-                    self._log("    skills: OK", "success")
-                    ok += 1
+                        ss = SKILL / sub
+                        if ss.exists():
+                            dd = sd / sub; _mkdir(dd)
+                            for f in ss.iterdir(): _cp(f, dd / f.name)
+                    _cp(SKILL / "SKILL.md", sd / "SKILL.md")
+                    self._ok("逆向技能包"); ok += 1
+                self._dim("")
 
-                self._log("", "normal")
+            if self.v_hermes.get():
+                self._sec("▶ Hermes")
+                _mkdir(HERMES)
+                if self.v_jb.get():
+                    for s, n in [("SOUL.md","SOUL.md"),("config.yaml","config.yaml")]:
+                        src = ROOT / "hermes-files" / "hermes-config-bundle" / s
+                        if src.exists() and _cp(src, HERMES / n):
+                            self._ok(n); ok += 1
+                self._dim("")
 
-            # ── Hermes ──
-            if self.var_hermes.get():
-                self._log("[Hermes]", "info")
-                safe_mkdir(HERMES_DIR)
-                if self.var_jailbreak.get():
-                    src = SCRIPT_DIR / "hermes-files" / "hermes-config-bundle" / "SOUL.md"
-                    if src.exists() and safe_copy(src, HERMES_DIR / "SOUL.md"):
-                        self._log("    SOUL.md: OK", "success")
-                        ok += 1
-                    src = SCRIPT_DIR / "hermes-files" / "hermes-config-bundle" / "config.yaml"
-                    if src.exists() and safe_copy(src, HERMES_DIR / "config.yaml"):
-                        self._log("    config.yaml: OK", "success")
-                        ok += 1
-                self._log("", "normal")
+            if self.v_open.get():
+                self._sec("▶ OpenCode")
+                _mkdir(OPENCODE)
+                oc = ROOT / "opencode-files" / "opencode-config-bundle"
+                if self.v_jb.get() and oc.exists():
+                    _cp(oc / "opencode.json", OPENCODE / "opencode.json")
+                    for sub in [(".opencode/agents", ".opencode/agents"), ("prompts", "prompts")]:
+                        ss = oc / sub[0]; dd = OPENCODE / sub[1]; _mkdir(dd)
+                        if ss.exists():
+                            for f in ss.iterdir(): _cp(f, dd / f.name)
+                    self._ok("配置文件"); ok += 1
+                self._dim("")
 
-            # ── OpenCode ──
-            if self.var_opencode.get():
-                self._log("[OpenCode]", "info")
-                safe_mkdir(OPENCODE_DIR)
-                oc_src = SCRIPT_DIR / "opencode-files" / "opencode-config-bundle"
-                if self.var_jailbreak.get() and oc_src.exists():
-                    safe_copy(oc_src / "opencode.json", OPENCODE_DIR / "opencode.json")
-                    agent_dst = OPENCODE_DIR / ".opencode" / "agents"
-                    safe_mkdir(agent_dst)
-                    agent_src = oc_src / ".opencode" / "agents"
-                    if agent_src.exists():
-                        for f in agent_src.iterdir():
-                            safe_copy(f, agent_dst / f.name)
-                    prompt_dst = OPENCODE_DIR / "prompts"
-                    safe_mkdir(prompt_dst)
-                    prompt_src = oc_src / "prompts"
-                    if prompt_src.exists():
-                        for f in prompt_src.iterdir():
-                            safe_copy(f, prompt_dst / f.name)
-                    self._log("    OpenCode config: OK", "success")
-                    ok += 1
-                self._log("", "normal")
+            if self.v_mcp.get():
+                self._sec("▶ MCP 工具")
+                uv = shutil.which("uv")
+                if uv and MCP.exists():
+                    self._dim("  正在安装依赖...")
+                    r = subprocess.run(["uv", "sync"], cwd=str(MCP), capture_output=True, text=True, timeout=120)
+                    if r.returncode == 0: self._ok("MCP 依赖"); ok += 1
+                    else: self._err("MCP 依赖"); fail += 1
+                elif not uv:
+                    self._warn("未找到 uv")
+                self._dim("")
 
-            # ── MCP Tools ──
-            if self.var_mcp.get():
-                self._log("[MCP Tools]", "info")
-                if MCP_DIR.exists():
-                    uv = shutil.which("uv")
-                    if uv:
-                        self._log("    Running uv sync...", "gray")
-                        result = subprocess.run(
-                            ["uv", "sync"], cwd=str(MCP_DIR),
-                            capture_output=True, text=True, timeout=120
-                        )
-                        if result.returncode == 0:
-                            self._log("    MCP dependencies: OK", "success")
-                            ok += 1
-                        else:
-                            self._log(f"    MCP dependencies: FAIL ({result.stderr[:100]})", "error")
-                            fail += 1
-                    else:
-                        self._log("    uv not found (pip install uv)", "warning")
-                self._log("", "normal")
+            if self.v_py.get():
+                self._sec("▶ Python RE 库")
+                py = shutil.which("python")
+                if py:
+                    self._dim("  lief frida angr capstone keystone unicorn")
+                    r = subprocess.run([py, "-m", "pip", "install", "--quiet",
+                                        "lief","frida","angr","capstone","keystone-engine","unicorn"],
+                                       capture_output=True, text=True, timeout=300)
+                    if r.returncode == 0: self._ok("Python RE 库"); ok += 1
+                    else: self._err("Python RE 库"); fail += 1
+                else: self._warn("未找到 Python")
+                self._dim("")
 
-            # ── Python RE Libs ──
-            if self.var_python_re.get():
-                self._log("[Python RE Libraries]", "info")
-                python = shutil.which("python")
-                if python:
-                    self._log("    Installing: lief frida angr capstone keystone-engine unicorn", "gray")
-                    result = subprocess.run(
-                        [python, "-m", "pip", "install", "--quiet",
-                         "lief", "frida", "angr", "capstone", "keystone-engine", "unicorn"],
-                        capture_output=True, text=True, timeout=300
-                    )
-                    if result.returncode == 0:
-                        self._log("    Python RE libs: OK", "success")
-                        ok += 1
-                    else:
-                        self._log(f"    Python RE libs: FAIL", "error")
-                        fail += 1
-                else:
-                    self._log("    Python not found", "warning")
-                self._log("", "normal")
-
-            # ── Summary ──
-            self._log("=" * 50, "info")
+            self._sec("═" * 48)
             if fail == 0:
-                self._log(f"  Deploy complete! ({ok} items)", "success")
+                self._ok(f"部署完成！共 {ok} 项")
+                self._sec("请重启 AI 工具使配置生效。")
             else:
-                self._log(f"  Deploy done ({ok} ok, {fail} fail)", "warning")
-            self._log("  Restart your AI tool to apply changes.", "info")
-            self._log("=" * 50, "info")
-
+                self._warn(f"部署完成（{ok} 成功，{fail} 失败）")
+            self._sec("═" * 48)
         except Exception as e:
-            self._log(f"ERROR: {e}", "error")
+            self._err(f"错误：{e}")
         finally:
-            self.progress.stop()
-            self._set_buttons(True)
+            self._btns(True)
+
+    # ── 验证 ──
+    def _verify_start(self):
+        self._btns(False)
+        threading.Thread(target=self._verify, daemon=True).start()
 
     def _verify(self):
         try:
-            self._log("=" * 50, "info")
-            self._log("  Verification", "info")
-            self._log("=" * 50, "info")
-
+            self._sec("═" * 48)
+            self._sec("  验证部署")
+            self._sec("═" * 48)
             checks = [
-                ("CLAUDE.md", CLAUDE_DIR / "CLAUDE.md", "Ghost"),
-                ("system-prompt.md", CLAUDE_DIR / "system-prompt.md", "Ghost"),
-                ("settings.json", CLAUDE_DIR / "settings.json", "bypassPermissions"),
-                ("config.toml", CLAUDE_DIR / "config.toml", "system-prompt.md"),
-                (".codex/gpt5.5-unrestricted.md", CODEX_DIR / "gpt5.5-unrestricted.md", "UNRESTRICTED"),
-                (".codex/AGENTS.md", CODEX_DIR / "AGENTS.md", "Agent"),
-                (".hermes/SOUL.md", HERMES_DIR / "SOUL.md", "Ghost"),
+                ("Claude 越狱配置", CLAUDE / "CLAUDE.md", "Ghost"),
+                ("系统提示词", CLAUDE / "system-prompt.md", "Ghost"),
+                ("权限配置", CLAUDE / "settings.json", "bypassPermissions"),
+                ("指令指向", CLAUDE / "config.toml", "system-prompt.md"),
+                ("Codex 越狱指令", CODEX / "gpt5.5-unrestricted.md", "UNRESTRICTED"),
+                ("Codex 执行协议", CODEX / "AGENTS.md", "Agent"),
+                ("Codex 配置", CODEX / "config.toml", "model_instructions_file"),
+                ("Hermes 越狱配置", HERMES / "SOUL.md", "Ghost"),
+                ("MCP Server", MCP / "reverse_lab_tools_mcp.py", None),
             ]
-
             ok = 0
-            for name, path, pattern in checks:
+            for name, path, pat in checks:
                 if path.exists():
-                    content = path.read_text(encoding="utf-8", errors="ignore")
-                    if pattern in content:
-                        self._log(f"  {name}: OK", "success")
-                        ok += 1
+                    if pat is None:
+                        self._ok(name); ok += 1
                     else:
-                        self._log(f"  {name}: WARNING (pattern not found)", "warning")
-                else:
-                    self._log(f"  {name}: MISSING", "error")
-
-            # MCP server
-            mcp_py = MCP_DIR / "reverse_lab_tools_mcp.py"
-            if mcp_py.exists():
-                self._log(f"  MCP server: OK", "success")
-                ok += 1
-            else:
-                self._log(f"  MCP server: MISSING", "error")
-
-            self._log("", "normal")
-            self._log(f"Result: {ok}/{len(checks)+1} checks passed", "success" if ok == len(checks)+1 else "warning")
-
+                        c = path.read_text(encoding="utf-8", errors="ignore")
+                        if pat in c: self._ok(name); ok += 1
+                        else: self._warn(f"{name}（模式未匹配）")
+                else: self._err(name)
+            self._dim("")
+            t = len(checks)
+            if ok == t: self._ok(f"全部通过（{ok}/{t}）")
+            else: self._warn(f"通过 {ok}/{t}")
         except Exception as e:
-            self._log(f"ERROR: {e}", "error")
+            self._err(f"错误：{e}")
         finally:
-            self.progress.stop()
-            self._set_buttons(True)
+            self._btns(True)
+
+    # ── 卸载 ──
+    def _uninstall_start(self):
+        self._btns(False)
+        threading.Thread(target=self._uninstall, daemon=True).start()
 
     def _uninstall(self):
         try:
-            self._log("=" * 50, "info")
-            self._log("  Uninstall", "info")
-            self._log("=" * 50, "info")
-
-            removed = 0
-            for d in CLAUDE_DIRS:
-                for f in ["CLAUDE.md", "system-prompt.md", "config.toml", "settings.json"]:
+            self._sec("═" * 48)
+            self._sec("  卸载")
+            self._sec("═" * 48)
+            rm = 0
+            # Claude dirs
+            for d in DIRS:
+                for f in ["CLAUDE.md","system-prompt.md","config.toml","settings.json"]:
                     p = d / f
-                    if p.exists():
-                        p.unlink()
-                        self._log(f"  Removed: {p}", "success")
-                        removed += 1
-                hooks = d / ".claude" / "hooks"
-                if hooks.exists():
-                    shutil.rmtree(str(hooks))
-                    self._log(f"  Removed: {hooks}", "success")
-                    removed += 1
-                wfs = d / ".claude" / "workflows"
-                if wfs.exists():
-                    shutil.rmtree(str(wfs))
-                    self._log(f"  Removed: {wfs}", "success")
-                    removed += 1
-
-            self._log("", "normal")
-            self._log(f"Removed {removed} items", "success")
-
+                    if p.exists(): p.unlink(); self._ok(f"删除 {p.name}"); rm += 1
+                for sub in [".claude/hooks", ".claude/workflows"]:
+                    p = d / sub
+                    if p.exists(): shutil.rmtree(str(p)); self._ok(f"删除 {sub}/"); rm += 1
+                sk = d / "skills" / "reverse-flow"
+                if sk.exists(): shutil.rmtree(str(sk)); self._ok(f"删除 skills/"); rm += 1
+            # Codex
+            for f in ["gpt5.5-unrestricted.md", "AGENTS.md"]:
+                p = CODEX / f
+                if p.exists(): p.unlink(); self._ok(f"codex/{f}"); rm += 1
+            csk = CODEX / "skills" / "reverse-flow"
+            if csk.exists(): shutil.rmtree(str(csk)); self._ok("codex/skills/"); rm += 1
+            # Hermes
+            for f in ["SOUL.md", "config.yaml"]:
+                p = HERMES / f
+                if p.exists(): p.unlink(); self._ok(f"hermes/{f}"); rm += 1
+            # OpenCode
+            for sub in ["opencode.json", ".opencode/agents", "prompts"]:
+                p = OPENCODE / sub
+                if p.exists():
+                    if p.is_dir(): shutil.rmtree(str(p))
+                    else: p.unlink()
+                    self._ok(f"opencode/{sub}"); rm += 1
+            self._dim("")
+            self._ok(f"卸载完成，共清理 {rm} 项")
         except Exception as e:
-            self._log(f"ERROR: {e}", "error")
+            self._err(f"错误：{e}")
         finally:
-            self.progress.stop()
-            self._set_buttons(True)
-
-    def run(self):
-        # Style
-        style = Style()
-        style.configure("Custom.TLabelframe", background="#313244", foreground="#cdd6f4")
-        style.configure("Custom.TLabelframe.Label", background="#313244", foreground="#89b4fa", font=("Segoe UI", 10, "bold"))
-        style.configure("Custom.Horizontal.TProgressbar", troughcolor="#313244", background="#89b4fa")
-
-        self.root.mainloop()
+            self._btns(True)
 
 
 if __name__ == "__main__":
-    app = InstallerGUI()
-    app.run()
+    App().mainloop()
