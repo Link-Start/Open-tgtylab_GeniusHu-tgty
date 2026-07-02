@@ -593,11 +593,14 @@ if (Test-Path $codexDst) {
                 $mcpProjectDir = [System.IO.Path]::GetFullPath((Join-Path (Join-Path (Join-Path $SCRIPT_DIR '..') 'tools') 'skills'))
                 $mcpProjectDir = Join-Path (Join-Path $mcpProjectDir 'mcp') 'ReverseLabToolsMCP'
                 $mcpPy = Join-Path $mcpProjectDir 'reverse_lab_tools_mcp.py'
+                # Convert backslashes to forward slashes for TOML compatibility
+                $mcpProjectDirT = $mcpProjectDir.Replace('\', '/')
+                $mcpPyT = $mcpPy.Replace('\', '/')
                 $mcpBlock = @"
 
 [mcp_servers.reverse_lab_tools]
 command = "uv"
-args = ["run", "--project", "$mcpProjectDir", "python", "$mcpPy"]
+args = ["run", "--project", "$mcpProjectDirT", "python", "$mcpPyT"]
 startup_timeout_sec = 30
 "@
                 $content = $content + $mcpBlock
@@ -620,16 +623,18 @@ $projCodexConfig = Join-Path (Join-Path $projectRoot '.codex') 'config.toml'
 if (Test-Path $projCodexConfig) {
     try {
         $projContent = Get-Content $projCodexConfig -Raw -ErrorAction Stop
-        # Replace relative MCP paths with absolute
         $projMcpDir = [System.IO.Path]::GetFullPath((Join-Path (Join-Path (Join-Path $projectRoot 'tools') 'skills') 'mcp'))
         $projMcpDir = Join-Path $projMcpDir 'ReverseLabToolsMCP'
         $projMcpPy = Join-Path $projMcpDir 'reverse_lab_tools_mcp.py'
+        # Convert backslashes to forward slashes for TOML compatibility
+        $projMcpDirT = $projMcpDir.Replace('\', '/')
+        $projMcpPyT = $projMcpPy.Replace('\', '/')
         if ((Test-Path $projMcpPy) -and ($projContent -notmatch 'reverse_lab_tools')) {
             $projMcpBlock = @"
 
 [mcp_servers.reverse_lab_tools]
 command = "uv"
-args = ["run", "--project", "$projMcpDir", "python", "$projMcpPy"]
+args = ["run", "--project", "$projMcpDirT", "python", "$projMcpPyT"]
 startup_timeout_sec = 30
 "@
             $projContent = $projContent + $projMcpBlock
