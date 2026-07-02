@@ -857,7 +857,7 @@ Write-Host '[*] Installing reverse engineering tools...' -ForegroundColor Cyan
 $installToolsScript = Join-Path $SCRIPT_DIR 'install_tools.ps1'
 if (Test-Path $installToolsScript) {
     try {
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installToolsScript -All 2>&1 | Out-Null
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installToolsScript -All 2>&1
         Write-Host '    Tool installation complete (check above for details)' -ForegroundColor Green
     } catch {
         Write-Host "    Tool installation had errors (non-fatal): $_" -ForegroundColor Yellow

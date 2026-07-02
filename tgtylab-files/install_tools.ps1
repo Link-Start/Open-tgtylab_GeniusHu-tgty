@@ -30,7 +30,10 @@ param(
     [switch]$X64dbg,
     [switch]$DiE,
     [switch]$PEBear,
-    [switch]$Procmon
+    [switch]$Procmon,
+    [switch]$Nmap,
+    [switch]$Apktool,
+    [switch]$Jadx
 )
 
 # -- Setup --
@@ -325,11 +328,78 @@ function Install-Procmon {
 }
 
 # ============================================
+# NMAP
+# ============================================
+function Install-Nmap {
+    $dir = Join-Path $TOOLS_DIR 'windows\nmap'
+    if (Test-Path (Join-Path $dir 'nmap.exe')) {
+        Write-Host "    Nmap already installed" -ForegroundColor DarkGray
+        $script:skipped++; return
+    }
+    Write-Host "[*] Nmap" -ForegroundColor Cyan
+    Write-Host "    Downloading..." -ForegroundColor Gray
+    $zip = Join-Path $DOWNLOADS 'nmap.zip'
+    $url = 'https://nmap.org/dist/nmap-7.97-win32.zip'
+    Invoke-SafeDownload $url $zip
+    Expand-Safe $zip $dir
+    # Move contents up if nested
+    $sub = Get-ChildItem $dir -Directory -Filter 'nmap-*' -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($sub) {
+        Move-Item "$($sub.FullName)\*" $dir -Force -ErrorAction SilentlyContinue
+        Remove-Item $sub.FullName -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    Write-Host "    Installed to: $dir" -ForegroundColor Green
+    $script:installed++
+}
+
+# ============================================
+# APKTOOL
+# ============================================
+function Install-Apktool {
+    $dir = Join-Path $TOOLS_DIR 'android\apktool'
+    if (Test-Path (Join-Path $dir 'apktool.jar')) {
+        Write-Host "    Apktool already installed" -ForegroundColor DarkGray
+        $script:skipped++; return
+    }
+    Write-Host "[*] Apktool" -ForegroundColor Cyan
+    Write-Host "    Downloading..." -ForegroundColor Gray
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+    $jarUrl = 'https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.11.0.jar'
+    $jarPath = Join-Path $dir 'apktool.jar'
+    Invoke-SafeDownload $jarUrl $jarPath
+    # Create wrapper bat
+    $batContent = "@echo off`njava -jar `"%~dp0apktool.jar`" %*"
+    $batContent | Out-File -FilePath (Join-Path $dir 'apktool.bat') -Encoding ASCII
+    Write-Host "    Installed to: $dir" -ForegroundColor Green
+    $script:installed++
+}
+
+# ============================================
+# JADX
+# ============================================
+function Install-Jadx {
+    $dir = Join-Path $TOOLS_DIR 'android\jadx'
+    if (Test-Path (Join-Path $dir 'bin\jadx.bat')) {
+        Write-Host "    Jadx already installed" -ForegroundColor DarkGray
+        $script:skipped++; return
+    }
+    Write-Host "[*] Jadx" -ForegroundColor Cyan
+    Write-Host "    Downloading..." -ForegroundColor Gray
+    $url = Get-GitHubAssetUrl 'skylot/jadx' 'jadx-gui-.*-with-jre-win\.zip'
+    if (!$url) { Write-Warning "    Could not find Jadx release"; $script:failed++; return }
+    $zip = Join-Path $DOWNLOADS 'jadx.zip'
+    Invoke-SafeDownload $url $zip
+    Expand-Safe $zip $dir
+    Write-Host "    Installed to: $dir" -ForegroundColor Green
+    $script:installed++
+}
+
+# ============================================
 # MAIN DISPATCH
 # ============================================
 
 # If no flags, default to -All
-if (!($All -or $Ghidra -or $Cutter -or $X64dbg -or $DiE -or $PEBear -or $Procmon)) {
+if (!($All -or $Ghidra -or $Cutter -or $X64dbg -or $DiE -or $PEBear -or $Procmon -or $Nmap -or $Apktool -or $Jadx)) {
     $All = $true
 }
 
@@ -345,6 +415,9 @@ $installX64dbg  = $All -or $X64dbg
 $installDiE     = $All -or $DiE
 $installPEBear  = $All -or $PEBear
 $installProcmon = $All -or $Procmon
+$installNmap    = $All -or $Nmap
+$installApktool = $All -or $Apktool
+$installJadx    = $All -or $Jadx
 
 # Run each installer independently - catch errors so one failure doesn't block others
 if ($installGhidra)  { try { Install-Ghidra  } catch { Write-Warning "Ghidra failed: $_";  $script:failed++ } }
@@ -353,6 +426,9 @@ if ($installX64dbg)  { try { Install-X64dbg  } catch { Write-Warning "x64dbg fai
 if ($installDiE)     { try { Install-DiE     } catch { Write-Warning "DiE failed: $_";     $script:failed++ } }
 if ($installPEBear)  { try { Install-PEBear  } catch { Write-Warning "PE-bear failed: $_"; $script:failed++ } }
 if ($installProcmon) { try { Install-Procmon } catch { Write-Warning "Procmon failed: $_"; $script:failed++ } }
+if ($installNmap)    { try { Install-Nmap    } catch { Write-Warning "Nmap failed: $_";    $script:failed++ } }
+if ($installApktool) { try { Install-Apktool } catch { Write-Warning "Apktool failed: $_"; $script:failed++ } }
+if ($installJadx)    { try { Install-Jadx    } catch { Write-Warning "Jadx failed: $_";    $script:failed++ } }
 
 # Summary
 Write-Host ''
