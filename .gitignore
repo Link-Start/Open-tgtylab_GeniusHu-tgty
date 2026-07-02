@@ -29,3 +29,10 @@ credentials*
 *.pem
 *.p12
 secrets*
+
+# CTF work artifacts (not for distribution)
+exports/
+cases/
+notes/
+reports/
+.agents/
