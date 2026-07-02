@@ -614,6 +614,31 @@ startup_timeout_sec = 30
     Write-Host "    OK" -ForegroundColor Green
 } else { Write-Host "    SKIPPED (~/.codex/ not found)" -ForegroundColor DarkGray }
 
+# Also fix project-level .codex/config.toml with absolute paths
+$projectRoot = [System.IO.Path]::GetFullPath((Join-Path $SCRIPT_DIR '..'))
+$projCodexConfig = Join-Path (Join-Path $projectRoot '.codex') 'config.toml'
+if (Test-Path $projCodexConfig) {
+    try {
+        $projContent = Get-Content $projCodexConfig -Raw -ErrorAction Stop
+        # Replace relative MCP paths with absolute
+        $projMcpDir = [System.IO.Path]::GetFullPath((Join-Path (Join-Path (Join-Path $projectRoot 'tools') 'skills') 'mcp'))
+        $projMcpDir = Join-Path $projMcpDir 'ReverseLabToolsMCP'
+        $projMcpPy = Join-Path $projMcpDir 'reverse_lab_tools_mcp.py'
+        if ((Test-Path $projMcpPy) -and ($projContent -notmatch 'reverse_lab_tools')) {
+            $projMcpBlock = @"
+
+[mcp_servers.reverse_lab_tools]
+command = "uv"
+args = ["run", "--project", "$projMcpDir", "python", "$projMcpPy"]
+startup_timeout_sec = 30
+"@
+            $projContent = $projContent + $projMcpBlock
+            Write-FileUtf8 $projCodexConfig $projContent | Out-Null
+            Write-Host "    project .codex/config.toml: added MCP (absolute paths)" -ForegroundColor Green
+        }
+    } catch {}
+}
+
 # OpenCode
 Write-Host ''
 Write-Host '[*] OpenCode deploy...' -ForegroundColor Cyan
