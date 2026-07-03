@@ -40,3 +40,14 @@ reports/
 # GUI installer (not yet published)
 installer.py
 installer.bat
+
+# Auto-downloaded tools (too large for git, install_tools.ps1 downloads them)
+tools/common/ghidra_*/
+tools/windows/x64dbg/
+tools/windows/die/
+tools/windows/PE-bear/
+tools/windows/ProcessMonitor/
+tools/windows/Cutter/
+tools/android/jadx/
+tools/android/apktool/
+tools/downloads/

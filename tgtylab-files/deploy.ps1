@@ -596,13 +596,8 @@ if (Test-Path $codexDst) {
                 # Convert backslashes to forward slashes for TOML compatibility
                 $mcpProjectDirT = $mcpProjectDir.Replace('\', '/')
                 $mcpPyT = $mcpPy.Replace('\', '/')
-                $mcpBlock = @"
-
-[mcp_servers.reverse_lab_tools]
-command = "uv"
-args = ["run", "--project", "$mcpProjectDirT", "python", "$mcpPyT"]
-startup_timeout_sec = 30
-"@
+                # Use simple format: command + args as JSON-like string (no multi-line arrays)
+                $mcpBlock = "`n[mcp_servers.reverse_lab_tools]`ncommand = `"uv`"`nargs = [`"run`", `"--project`", `"$mcpProjectDirT`", `"python`", `"$mcpPyT`"]`nstartup_timeout_sec = 30`n"
                 $content = $content + $mcpBlock
                 $changed = $true
             }
@@ -630,13 +625,7 @@ if (Test-Path $projCodexConfig) {
         $projMcpDirT = $projMcpDir.Replace('\', '/')
         $projMcpPyT = $projMcpPy.Replace('\', '/')
         if ((Test-Path $projMcpPy) -and ($projContent -notmatch 'reverse_lab_tools')) {
-            $projMcpBlock = @"
-
-[mcp_servers.reverse_lab_tools]
-command = "uv"
-args = ["run", "--project", "$projMcpDirT", "python", "$projMcpPyT"]
-startup_timeout_sec = 30
-"@
+            $projMcpBlock = "`n[mcp_servers.reverse_lab_tools]`ncommand = `"uv`"`nargs = [`"run`", `"--project`", `"$projMcpDirT`", `"python`", `"$projMcpPyT`"]`nstartup_timeout_sec = 30`n"
             $projContent = $projContent + $projMcpBlock
             Write-FileUtf8 $projCodexConfig $projContent | Out-Null
             Write-Host "    project .codex/config.toml: added MCP (absolute paths)" -ForegroundColor Green
