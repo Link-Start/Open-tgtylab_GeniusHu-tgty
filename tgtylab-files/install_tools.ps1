@@ -241,13 +241,13 @@ function Install-DiE {
     }
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
 
-    $url = Get-GitHubAssetUrl -Repo 'horsicq/Detect-It-Easy' -Pattern 'die_win64_portable_.*\.zip'
+    $url = Get-GitHubAssetUrl -Repo 'horsicq/DIE-engine' -Pattern 'die_win64_portable_.*\.zip'
     if (!$url) {
         # Fallback: try win32 or broader pattern
-        $url = Get-GitHubAssetUrl -Repo 'horsicq/Detect-It-Easy' -Pattern 'die_win.*portable.*\.zip'
+        $url = Get-GitHubAssetUrl -Repo 'horsicq/DIE-engine' -Pattern 'die_win.*portable.*\.zip'
     }
     if (!$url) {
-        Write-Warning "    Could not find DiE release. Download manually from https://github.com/horsicq/Detect-It-Easy/releases"
+        Write-Warning "    Could not find DiE release. Download manually from https://github.com/horsicq/DIE-engine/releases"
         $script:failed++
         return
     }
@@ -339,7 +339,7 @@ function Install-Nmap {
     Write-Host "[*] Nmap" -ForegroundColor Cyan
     Write-Host "    Downloading..." -ForegroundColor Gray
     $zip = Join-Path $DOWNLOADS 'nmap.zip'
-    $url = 'https://nmap.org/dist/nmap-7.97-win32.zip'
+    $url = 'https://nmap.org/dist/nmap-7.92-win32.zip'
     Invoke-SafeDownload $url $zip
     Expand-Safe $zip $dir
     # Move contents up if nested
