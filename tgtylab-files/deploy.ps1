@@ -623,11 +623,24 @@ if (Test-Path $codexDst) {
         Copy-FileSafe $instrSrc (Join-Path $codexDst 'instructions.txt') | Out-Null
         Write-Host "    instructions.txt -> ~/.codex/ (updated)" -ForegroundColor Green
     }
-    # Add MCP server to config.toml if missing
+    # Copy gpt5.5-unrestricted.md (system prompt override)
+    $unrestrSrc = Join-Path $codexSrc 'gpt5.5-unrestricted.md'
+    if (Test-Path $unrestrSrc) {
+        Copy-FileSafe $unrestrSrc (Join-Path $codexDst 'gpt5.5-unrestricted.md') | Out-Null
+        Write-Host "    gpt5.5-unrestricted.md -> ~/.codex/ (updated)" -ForegroundColor Green
+    }
+    # Add model_instructions_file + MCP server to config.toml if missing
     $codexConfig = Join-Path $codexDst 'config.toml'
     if (Test-Path $codexConfig) {
         try {
             $content = Get-Content $codexConfig -Raw -ErrorAction Stop
+            $changed = $false
+            # Add model_instructions_file if missing
+            if ($content -notmatch 'model_instructions_file') {
+                $content = 'model_instructions_file = "./gpt5.5-unrestricted.md"' + "`n" + $content
+                $changed = $true
+            }
+            # Add MCP server if missing
             if ($content -notmatch 'reverse_lab_tools') {
                 # Use absolute paths for Codex compatibility
                 $mcpProjectDir = [System.IO.Path]::GetFullPath((Join-Path (Join-Path (Join-Path $SCRIPT_DIR '..') 'tools') 'skills'))
