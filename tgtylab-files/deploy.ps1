@@ -462,7 +462,7 @@ if ($Uninstall) {
     }
     # Codex
     Write-Host "[*] Cleaning Codex: $CODEX_DIR" -ForegroundColor Yellow
-    foreach ($f in @('gpt5.5-unrestricted.md', 'AGENTS.md', 'instructions.txt')) {
+    foreach ($f in @('AGENTS.md', 'instructions.txt')) {
         $p = Join-Path $CODEX_DIR $f
         if (Test-Path $p) {
             Remove-FileSafe $p | Out-Null
@@ -611,34 +611,23 @@ Write-Host '[*] Codex deploy...' -ForegroundColor Cyan
 $codexSrc = Join-Path (Join-Path (Join-Path $SCRIPT_DIR '..') 'codex-files') 'codex-config-bundle'
 $codexDst = Join-Path $USER_HOME '.codex'
 if (Test-Path $codexDst) {
-    # Copy gpt5.5-unrestricted.md (primary: model_instructions_file)
-    $unrestrictedSrc = Join-Path $codexSrc 'gpt5.5-unrestricted.md'
-    if (Test-Path $unrestrictedSrc) {
-        Copy-FileSafe $unrestrictedSrc (Join-Path $codexDst 'gpt5.5-unrestricted.md') | Out-Null
-        Write-Host "    gpt5.5-unrestricted.md -> ~/.codex/ (updated)" -ForegroundColor Green
-    }
-    # Copy AGENTS.md (fallback for project-level)
+    # Copy AGENTS.md (project-level protocol)
     $agentsSrc = Join-Path $codexSrc 'AGENTS.md'
     if (Test-Path $agentsSrc) {
         Copy-FileSafe $agentsSrc (Join-Path $codexDst 'AGENTS.md') | Out-Null
         Write-Host "    AGENTS.md -> ~/.codex/ (updated)" -ForegroundColor Green
     }
-    # Copy instructions.txt (fallback)
+    # Copy instructions.txt (CTF framing)
     $instrSrc = Join-Path $codexSrc 'instructions.txt'
     if (Test-Path $instrSrc) {
         Copy-FileSafe $instrSrc (Join-Path $codexDst 'instructions.txt') | Out-Null
         Write-Host "    instructions.txt -> ~/.codex/ (updated)" -ForegroundColor Green
     }
-    # Add model_instructions_file + MCP server to config.toml
+    # Add MCP server to config.toml if missing
     $codexConfig = Join-Path $codexDst 'config.toml'
     if (Test-Path $codexConfig) {
         try {
             $content = Get-Content $codexConfig -Raw -ErrorAction Stop
-            $changed = $false
-            if ($content -notmatch 'model_instructions_file') {
-                $content = 'model_instructions_file = "./gpt5.5-unrestricted.md"' + "`n" + $content
-                $changed = $true
-            }
             if ($content -notmatch 'reverse_lab_tools') {
                 # Use absolute paths for Codex compatibility
                 $mcpProjectDir = [System.IO.Path]::GetFullPath((Join-Path (Join-Path (Join-Path $SCRIPT_DIR '..') 'tools') 'skills'))
@@ -801,15 +790,8 @@ fi
         $codexSrcWsl = Convert-ToWslPath $codexSrc
         $wslCodexScript = @'
 if [ -d "WCLDIR" ]; then
-    cp "CSRC/gpt5.5-unrestricted.md" "WCLDIR/" 2>/dev/null
     cp "CSRC/AGENTS.md" "WCLDIR/" 2>/dev/null
     cp "CSRC/instructions.txt" "WCLDIR/" 2>/dev/null
-    if ! grep -q 'model_instructions_file' "WCLDIR/config.toml" 2>/dev/null; then
-        TEMP=$(mktemp)
-        printf 'model_instructions_file = "./gpt5.5-unrestricted.md"\n' > "$TEMP"
-        cat "WCLDIR/config.toml" >> "$TEMP"
-        mv "$TEMP" "WCLDIR/config.toml"
-    fi
     echo 'OK'
 else
     echo 'SKIP'
