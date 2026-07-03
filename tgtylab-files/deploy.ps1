@@ -53,6 +53,9 @@ if (!$USER_HOME) {
 
 # ========== Target directories ==========
 $CLAUDE_DIR = Join-Path $USER_HOME '.claude'
+$CODEX_DIR = Join-Path $USER_HOME '.codex'
+$HERMES_DIR = Join-Path $USER_HOME '.hermes'
+$OPENCODE_DIR = Join-Path (Join-Path $USER_HOME '.config') 'opencode'
 $ALL_DIRS = @($CLAUDE_DIR)
 $desktopCandidates = @(
     (Join-Path $env:APPDATA 'claude'),
@@ -445,12 +448,60 @@ if ($warnCount -gt 0) { Write-Host '' }
 if ($Uninstall) {
     Write-Host 'Uninstalling...' -ForegroundColor Yellow
     $total = 0
+    # Claude dirs
     foreach ($dir in $ALL_DIRS) {
         Write-Host "[*] Cleaning: $dir" -ForegroundColor Yellow
         $total += Uninstall-Config $dir
+        # Remove skills
+        $skillDir = Join-Path $dir 'skills' 'reverse-flow'
+        if (Test-Path $skillDir) {
+            Remove-Item $skillDir -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "    Removed skills/reverse-flow/" -ForegroundColor Green
+            $total++
+        }
+    }
+    # Codex
+    Write-Host "[*] Cleaning Codex: $CODEX_DIR" -ForegroundColor Yellow
+    foreach ($f in @('gpt5.5-unrestricted.md', 'AGENTS.md', 'instructions.txt')) {
+        $p = Join-Path $CODEX_DIR $f
+        if (Test-Path $p) {
+            Remove-FileSafe $p | Out-Null
+            Write-Host "    Removed $f" -ForegroundColor Green
+            $total++
+        }
+    }
+    $codexSkillDir = Join-Path $CODEX_DIR 'skills' 'reverse-flow'
+    if (Test-Path $codexSkillDir) {
+        Remove-Item $codexSkillDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host "    Removed codex/skills/reverse-flow/" -ForegroundColor Green
+        $total++
+    }
+    # Hermes
+    Write-Host "[*] Cleaning Hermes: $HERMES_DIR" -ForegroundColor Yellow
+    foreach ($f in @('SOUL.md', 'config.yaml')) {
+        $p = Join-Path $HERMES_DIR $f
+        if (Test-Path $p) {
+            Remove-FileSafe $p | Out-Null
+            Write-Host "    Removed $f" -ForegroundColor Green
+            $total++
+        }
+    }
+    # OpenCode
+    Write-Host "[*] Cleaning OpenCode: $OPENCODE_DIR" -ForegroundColor Yellow
+    foreach ($sub in @('opencode.json', '.opencode', 'prompts')) {
+        $p = Join-Path $OPENCODE_DIR $sub
+        if (Test-Path $p) {
+            if ((Get-Item $p).PSIsContainer) {
+                Remove-Item $p -Recurse -Force -ErrorAction SilentlyContinue
+            } else {
+                Remove-Item $p -Force -ErrorAction SilentlyContinue
+            }
+            Write-Host "    Removed $sub" -ForegroundColor Green
+            $total++
+        }
     }
     Write-Host ''
-    Write-Host "Removed $total files" -ForegroundColor Cyan
+    Write-Host "Removed $total items" -ForegroundColor Cyan
     Write-Host ''
     Read-Host 'Press Enter to exit'
     exit

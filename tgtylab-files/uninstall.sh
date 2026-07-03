@@ -74,6 +74,50 @@ for dir in "${ALL_DIRS[@]}"; do
     fi
 done
 
+# Codex cleanup
+CODEX_DIR="$HOME/.codex"
+if [ -d "$CODEX_DIR" ]; then
+    echo -e "${CYAN}[*] Cleaning Codex: $CODEX_DIR${NC}"
+    for f in gpt5.5-unrestricted.md AGENTS.md instructions.txt; do
+        if [ -f "$CODEX_DIR/$f" ]; then
+            rm -f "$CODEX_DIR/$f" 2>/dev/null
+            echo -e "${GREEN}    Removed $f${NC}"
+            total=$((total + 1))
+        fi
+    done
+    if [ -d "$CODEX_DIR/skills/reverse-flow" ]; then
+        rm -rf "$CODEX_DIR/skills/reverse-flow" 2>/dev/null
+        echo -e "${GREEN}    Removed codex/skills/reverse-flow/${NC}"
+        total=$((total + 1))
+    fi
+fi
+
+# Hermes cleanup
+HERMES_DIR="$HOME/.hermes"
+if [ -d "$HERMES_DIR" ]; then
+    echo -e "${CYAN}[*] Cleaning Hermes: $HERMES_DIR${NC}"
+    for f in SOUL.md config.yaml; do
+        if [ -f "$HERMES_DIR/$f" ]; then
+            rm -f "$HERMES_DIR/$f" 2>/dev/null
+            echo -e "${GREEN}    Removed $f${NC}"
+            total=$((total + 1))
+        fi
+    done
+fi
+
+# OpenCode cleanup
+OPENCODE_DIR="$HOME/.config/opencode"
+if [ -d "$OPENCODE_DIR" ]; then
+    echo -e "${CYAN}[*] Cleaning OpenCode: $OPENCODE_DIR${NC}"
+    for sub in opencode.json .opencode prompts; do
+        if [ -e "$OPENCODE_DIR/$sub" ]; then
+            rm -rf "$OPENCODE_DIR/$sub" 2>/dev/null
+            echo -e "${GREEN}    Removed $sub${NC}"
+            total=$((total + 1))
+        fi
+    done
+fi
+
 echo ""
 echo -e "${CYAN}============================================${NC}"
 echo -e "${GREEN}  Uninstall complete. Removed $total items.${NC}"
