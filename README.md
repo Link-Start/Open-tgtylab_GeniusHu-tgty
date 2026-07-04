@@ -4,7 +4,7 @@
 
 **AI 驱动的安全研究工具包**
 
-150+ MCP 自动化工具 · 208 篇知识库 · 15 条 CTF 流水线 · 全平台部署
+150+ MCP 自动化工具 · 208 篇知识库 · 15 条自动化流水线 · 全平台部署
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-red.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue.svg)]()
@@ -15,77 +15,115 @@
 
 ---
 
-为 Claude Code / Codex / Hermes / OpenCode 提供完整安全研究工作流：PE 逆向、APK 分析、Web CTF、漏洞挖掘、恶意软件分析、游戏安全、内核调试。双击即用。
+为 Claude Code / Codex / Hermes / OpenCode 提供完整安全研究工作流：PE 逆向、APK 分析、Web 安全、漏洞研究、恶意软件分析。双击即用。
+
+## 路由
+
+```
+信号 → kb_router(board=) → kb_read_file → 技术文档 → MCP 工具映射 → 执行
+```
+
+| 信号类型 | 板块 | 知识库 | MCP 工具族 |
+|---------|------|--------|-----------|
+| HTTP/Web/API/CVE/Cloud | `ctf-website` | 26 类 / 118 篇 | `http_probe` `run_ctf_tool` `kb_router` |
+| APK/DEX/SO/Frida/Java | `apk-reverse` | 8 类 / 20 篇 | `android_app_baseline` `android_crypto_unpack_recipe` `android_frida_*` |
+| PE/x64/x86/malware/driver | `pe-reverse` | 9 类 / 22 篇 | `triage_pe` `ghidra_headless_analyze` `make_x64dbg_breakpoint_script` `sample_full_workup` |
+| Crypto/Protocol/Cheat/IoT | `general` | 5 类 / 17 篇 | `die_scan` `ghidra_*` `rizin_*` `python_re_tool_*` |
+| Windows 安全 | `windows` | 1 类 / 2 篇 | `triage_pe` `ghidra_*` |
+
+## 知识库
+
+```
+kb/
+├── ctf-website/techniques/   26 类 118 篇 — Web 安全全覆盖
+├── apk-reverse/techniques/    8 类  20 篇 — APK/DEX 逆向
+├── pe-reverse/techniques/     9 类  22 篇 — PE 二进制分析
+├── general/techniques/        5 类  17 篇 — 密码学/协议/内核/方法论
+└── windows/techniques/        1 类   2 篇 — Windows 安全
+```
+
+每篇技术文件结构：`场景 → 输入信号 → 方法 → 攻击链 → MCP 工具映射`
+
+## 板块
+
+| 板块 | 触发信号 |
+|------|---------|
+| `ctf-website` | URL, HTTP, JWT, SQLi, SSRF, CVE, API, CSP, OAuth, CAPTCHA, Cloudflare, DoS |
+| `apk-reverse` | APK, DEX, adb, Frida, jadx, smali, SO, native |
+| `pe-reverse` | PE, EXE, DLL, x64dbg, Ghidra, Procmon, packer, malware |
+| `general` | AES/DES/RSA, protobuf, game cheat, EAC/BE/Vanguard, firmware, JTAG, SDR |
+| `windows` | Notepad++, config injection, Windows security |
+
+## 目录约定
+
+```
+samples/      → 原始样本 + _quarantine/ + unpacked/
+exports/      → 工具输出（triage/IOC/YARA/Sigma/Procmon/Ghidra）
+patches/      → Patch 产物（不修改原始样本）
+notes/        → 分析笔记
+reports/      → 最终报告
+scripts/      → 自动化脚本
+kb/           → 可复用知识库
+tools/        → 工具链
+cases/        → 轻量索引，不复制大文件
+```
 
 ## 快速开始
 
+### Windows
+
+双击 `启动.bat` 一键部署。
+
+### macOS
+
+```bash
+chmod +x tgtylab-files/install.sh && ./tgtylab-files/install.sh
 ```
-git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
-cd Open-tgtylab
-双击 启动.bat
+
+### Linux
+
+```bash
+chmod +x tgtylab-files/linux-install.sh && ./tgtylab-files/linux-install.sh
 ```
 
 启动.bat 自动完成：配置部署 → MCP 工具安装 → Python RE 库 → 逆向工具下载。
 
-## 你能做什么
+### 验证
 
-### PE / ELF 逆向
+| 方式 | 操作 |
+|------|------|
+| Windows | 双击 `验证.bat` |
+| macOS/Linux | 检查 `~/.claude/CLAUDE.md` 是否存在 |
 
-```
-分析这个样本的行为和 IOC
-```
-→ 自动调用 `sample_full_workup`：triage → Ghidra → 断点 → IOC → YARA
+## AI 工具兼容性
 
-### APK 逆向
-
-```
-分析这个 APK 的加密方案和通信接口
-```
-→ 自动调用 `android_app_baseline` + `android_crypto_unpack_recipe`
-
-### Web CTF
-
-```
-对 http://target.example.com 做信息收集和漏洞扫描
-```
-→ 自动调用 `ctf-full-pipeline`：资产 → DoS → 漏洞 → 验证 → 报告
-
-### 24h 无人值守 CTF
-
-```
-对 target1.com target2.com 启动 24h 自动攻击
-```
-→ 自动调用 `ctf-24h-fleet`：批量目标 → 轮次攻击 → manifest 恢复点
-
-## 工具链
-
-### MCP 工具（150+）
-
-| 类别 | 数量 | 能力 |
+| 工具 | 支持 | 说明 |
 |------|------|------|
+| Claude Code | ✅ | 完整 MCP 工具 + 知识库 |
+| Codex App | ✅ | MCP 工具 + 知识库 |
+| Hermes | ✅ | 自动配置 |
+| OpenCode | ✅ | 自动配置 |
+| WSL | ✅ | 自动检测 |
+
+## MCP 工具链（150+）
+
+| 类别 | 数量 | 核心能力 |
+|------|------|---------|
 | PE/ELF 分析 | 17 | triage、Ghidra 反编译、Rizin 反汇编、patch |
 | Ghidra 深度分析 | 7 | 函数/导入/字符串查询、call focus |
 | 样本全分析 | 4 | 一键：triage → Ghidra → 断点 → IOC → YARA |
 | Android 逆向 | 28 | ADB、Frida 注入、私有目录取证、流量观察 |
 | CTF 自动化 | 4 | sqlmap/dirsearch/jwt_tool/tplmap |
 | 加密/脱壳 | 6 | 自动解密、buffer 提取、PE/DEX carve |
-| 其他 | 86 | 知识库、样本管理、Procmon、调试脚本 |
+| 知识库 | 3 | 208 篇技术文件，按信号搜索 |
+| 样本管理 | 7 | 导入/复制/移动/隔离/删除 |
+| 其他 | 66 | Procmon、调试脚本、Python RE、审计 |
 
-### 知识库（208 篇）
-
-| 板块 | 篇数 | 内容 |
-|------|------|------|
-| Web 攻击 | ~130 | JWT/SQLi/XSS/SSRF/OAuth/GraphQL/CVE/云/DoS |
-| PE 逆向 | ~24 | 壳分析/AOB/断点/脱壳/YARA/TLS |
-| Android | ~22 | Frida/IL2CPP/加密/协议/脱壳/JNI |
-| 通用 | ~19 | 密码学/协议/游戏安全/内核/方法论 |
-| Windows | 2 | 注入/配置安全 |
-
-### CTF 流水线（15 条）
+## CTF 流水线（15 条）
 
 | 流水线 | 功能 |
 |--------|------|
-| `ctf-full-pipeline` | 全链路：资产 → DoS → 漏洞 → 验证 → 报告 |
+| `ctf-full-pipeline` | 全链路：资产 → 漏洞 → 验证 → 报告 |
 | `ctf-24h-fleet` | 24h 舰队攻击（批量目标自动循环） |
 | `ctf-24h-round` | 24h 单轮攻击（无人值守循环） |
 | `ctf-attack-router` | 攻击路由器（自动选择攻击路径） |
@@ -101,7 +139,7 @@ cd Open-tgtylab
 | `ctf-vuln-discovery` | 漏洞挖掘（5 并行 agent） |
 | `ctf-vuln-verify` | 漏洞 PoC 验证 |
 
-### 逆向工具（自动下载）
+## 逆向工具（自动下载）
 
 | 工具 | 用途 |
 |------|------|
@@ -114,24 +152,6 @@ cd Open-tgtylab
 | nmap | 端口扫描 |
 | apktool | APK 反编译 |
 | jadx | APK → Java |
-
-## 使用方式
-
-### Claude Code
-
-打开 `open-tgtylab` 目录，输入 `/mcp` 确认 `reverse_lab_tools` 出现。
-
-### Codex App
-
-打开 `open-tgtylab` 目录，确认 `/mcp` 中有 `reverse_lab_tools`。
-
-### Hermes / OpenCode
-
-自动配置，重启生效。
-
-### WSL
-
-自动检测 WSL 环境，同步部署。
 
 ## 项目结构
 
@@ -158,14 +178,6 @@ open-tgtylab/
 ├── hermes-files/               Hermes 配置
 └── opencode-files/             OpenCode 配置
 ```
-
-## 验证
-
-| 方式 | 操作 |
-|------|------|
-| Windows | 双击 `验证.bat` |
-| macOS/Linux | 检查 `~/.claude/CLAUDE.md` 是否存在 |
-| Codex | 输入 `检查 MCP server 健康状态` |
 
 ## 卸载
 
