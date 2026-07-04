@@ -74,12 +74,14 @@ Signal → kb_router(board=) → kb_read_file → Technique → MCP tool mapping
 ## Knowledge Base
 
 ```
-kb/
-├── ctf-website/techniques/   26 categories, 118 articles — Full web attack surface
-├── apk-reverse/techniques/    8 categories,  20 articles — APK/DEX reverse engineering
-├── pe-reverse/techniques/     9 categories,  22 articles — PE binary analysis
-├── general/techniques/        5 categories,  17 articles — Cryptography / Protocols / Kernel / Cheating
-└── windows/techniques/        1 category,     2 articles — Windows security
+kb/                                    222 articles total
+├── deep-articles/                      12 deep attack guides — SQLi/SSRF/SSTI/XSS/LFI/JWT/Deser/XXE/RCE/Upload/Smuggling/OAuth
+├── ctf-website/techniques/             26 categories, 127 articles — Full web attack surface
+├── apk-reverse/techniques/              8 categories,  22 articles — APK/DEX reverse engineering
+├── pe-reverse/techniques/               9 categories,  24 articles — PE binary analysis
+├── general/techniques/                  5 categories,  19 articles — Cryptography / Protocols / Kernel / Cheating
+├── payloads/cheatsheet.md              Quick-reference payload cheatsheet for all vuln types
+└── AI-SEARCH-INDEX.md                  RAG search index covering all 222 articles
 ```
 
 ## Directory Convention
@@ -151,7 +153,14 @@ open-tgtylab/
 │   ├── common/                    Ghidra (auto-download)
 │   ├── windows/                   x64dbg/DiE/PE-bear/Procmon (auto-download)
 │   └── android/                   apktool/jadx (auto-download)
-├── kb/                            Knowledge base (208 articles)
+├── kb/                            Knowledge base (222 articles)
+│   ├── deep-articles/             12 deep attack guides (SQLi/SSRF/SSTI/XSS/LFI/JWT/Deser/XXE/RCE/Upload/Smuggling/OAuth)
+│   ├── ctf-website/techniques/    127 Web attack techniques across 26 categories
+│   ├── apk-reverse/techniques/    22 APK/DEX reverse engineering techniques
+│   ├── pe-reverse/techniques/     24 PE binary analysis techniques
+│   ├── general/techniques/        19 crypto/protocol/kernel techniques
+│   ├── payloads/cheatsheet.md    All-in-one payload cheatsheet
+│   └── AI-SEARCH-INDEX.md        RAG search index for all articles
 ├── .claude/                       Claude Code config + pipelines + skills
 ├── .codex/                        Codex config
 ├── AGENTS.md                      Agent protocol
