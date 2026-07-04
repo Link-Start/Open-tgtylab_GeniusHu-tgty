@@ -2,9 +2,9 @@
 
 # 🐙 open-tgtylab
 
-**一键部署的安全研究工具包**
+> 一键部署的安全研究工具包
 
-150+ MCP 工具 · 208 篇知识库 · 15 条自动化流水线
+150+ MCP 工具 · 208 篇知识库 · 15 条自动化流水线 · 9 个逆向工具自动下载
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-red.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WSL-blue.svg)]()
@@ -17,6 +17,36 @@
 ---
 
 > [English version](README.md)
+
+## 特性
+
+- 🔧 150+ MCP 自动化工具（PE 逆向 / Android / CTF / 加密 / 调试）
+- 📚 208 篇技术知识库（Web / APK / PE / 密码学 / 游戏安全）
+- 🔄 15 条 CTF 流水线（全链路 / 24h 无人值守 / 攻击路由 / 专项攻击）
+- 🛠 9 个逆向工具自动下载（Ghidra / Cutter / x64dbg / DiE / PE-bear / Procmon / nmap / apktool / jadx）
+- 🖥 全平台支持（Windows / macOS / Linux / WSL）
+- 💾 自动备份现有配置
+- ✅ 一键部署，自动检测所有配置目录
+
+## 快速开始
+
+### Windows
+
+双击 `启动.bat` 一键部署。
+
+### macOS
+
+```bash
+chmod +x tgtylab-files/install.sh
+./tgtylab-files/install.sh
+```
+
+### Linux
+
+```bash
+chmod +x tgtylab-files/linux-install.sh
+./tgtylab-files/linux-install.sh
+```
 
 ## 路由
 
@@ -42,60 +72,80 @@ kb/
 └── windows/techniques/        1 类   2 篇 — Windows 安全
 ```
 
-每篇结构：`场景 → 信号 → 方法 → 攻击链 → MCP 工具映射`
-
-Agent 工作流：检测信号 → `kb_router` 查技术文档 → `kb_read_file` 读取 → 按 MCP 工具映射执行。
-
-## 板块
-
-| 板块 | 触发信号 |
-|------|---------|
-| `ctf-website` | URL, HTTP, JWT, SQLi, SSRF, CVE, API, CSP, OAuth, CAPTCHA, Cloudflare, ReDoS, DoS |
-| `apk-reverse` | APK, DEX, adb, Frida, jadx, smali, SO, native |
-| `pe-reverse` | PE, EXE, DLL, x64dbg, Ghidra, Procmon, packer, malware |
-| `general` | AES/DES/RSA, protobuf, 游戏安全, EAC/BE/Vanguard, 固件, JTAG, SDR |
-
 ## 目录约定
 
 ```
 samples/      → 原始样本 + _quarantine/ + unpacked/
-exports/      → 工具输出（triage/IOC/YARA/Sigma/Ghidra summary）
-patches/      → Patch 产物（不修改原始样本）
+exports/      → 工具输出
+patches/      → Patch 产物
 notes/        → 分析笔记
 reports/      → 最终报告
 scripts/      → 自动化脚本
-kb/           → 可复用技术知识库
+kb/           → 知识库
 tools/        → 工具链
-cases/        → 轻量索引，不复制大文件
+cases/        → 轻量索引
 ```
 
-## 安装
+## 系统要求
 
-```powershell
-git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
-cd Open-tgtylab
-启动.bat
-```
+- Windows 10/11 (PowerShell 5.1+) / macOS / Linux
+- Git、Python 3.11+
+- Claude Code / Codex / Hermes / OpenCode（任一）
 
-macOS / Linux：
-```bash
-chmod +x tgtylab-files/install.sh && ./tgtylab-files/install.sh
-```
+## 其他操作
 
-启动.bat 自动完成：配置部署 → MCP 依赖 → Python RE 库 → 逆向工具下载 → WSL 同步。
+| 操作 | Windows | macOS / Linux |
+|------|---------|---------------|
+| 卸载 | 双击 `卸载.bat` | `./tgtylab-files/uninstall.sh` |
+| 验证 | 双击 `验证.bat` | 检查 `~/.claude/CLAUDE.md` 是否存在 |
+| 恢复 | 双击 `恢复备份.bat` | 手动复制 `~/.claude/backups/tgtylab-*` |
 
-## Agent 快速开始
+## 备份位置
 
-1. Clone 到本地固定目录。
-2. 双击 `启动.bat`（Windows）或运行 `install.sh`（macOS/Linux）。
-3. Claude Code / Codex / Hermes / OpenCode：打开 `Open-tgtylab` 文件夹。
-4. 验证：双击 `验证.bat`。
+部署前自动备份到：`~/.claude/backups/tgtylab-*`
 
-## 上下文链
+恢复备份：把备份目录里的文件复制回 `~/.claude/` 即可。
+
+## 文件结构
 
 ```
-CLAUDE.md → AGENTS.md → AI-USAGE.md → kb/<board>/AI-USAGE.md
+open-tgtylab/
+├── 启动.bat                       Windows 一键部署
+├── 启动.command                   macOS 一键部署
+├── 卸载.bat / 验证.bat / 恢复备份.bat
+├── tgtylab-files/
+│   ├── deploy.ps1                 Windows 部署引擎
+│   ├── install_tools.ps1          逆向工具下载器
+│   ├── install.sh / linux-install.sh / uninstall.sh
+│   └── config-bundle/
+│       ├── CLAUDE.md              研究协议（562 示例）
+│       └── system-prompt.md       系统提示词
+├── tools/
+│   ├── ctf-website/               CTF 工具 + 字典 + payload
+│   ├── skills/mcp/                MCP Server（150+ 工具）
+│   ├── common/                    Ghidra（自动下载）
+│   ├── windows/                   x64dbg/DiE/PE-bear/Procmon（自动下载）
+│   └── android/                   apktool/jadx（自动下载）
+├── kb/                            知识库（208 篇）
+├── .claude/                       Claude Code 配置 + 流水线 + skills
+├── .codex/                        Codex 配置
+├── AGENTS.md                      Agent 操作协议
+├── AI-USAGE.md                    任务路由
+├── codex-files/                   Codex 配置模板
+├── hermes-files/                  Hermes 配置
+└── opencode-files/                OpenCode 配置
 ```
+
+## 兼容性
+
+| 系统 | 状态 |
+|------|------|
+| Windows 11 | ✅ |
+| Windows 10 | ✅ |
+| macOS 12+ | ✅ |
+| Linux (Ubuntu/Debian/Arch) | ✅ |
+| 中文路径 | ✅ |
+| 空格路径 | ✅ |
 
 ## 许可
 

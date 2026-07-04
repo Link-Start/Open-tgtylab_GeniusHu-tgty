@@ -2,9 +2,9 @@
 
 # 🐙 open-tgtylab
 
-**One-click security research toolkit**
+> One-click security research toolkit
 
-150+ MCP tools · 208 knowledge base articles · 15 automated pipelines
+150+ MCP tools · 208 knowledge base articles · 15 automated pipelines · 9 reverse engineering tools auto-download
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-red.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WSL-blue.svg)]()
@@ -17,6 +17,36 @@
 ---
 
 > [中文版](README.zh.md)
+
+## Features
+
+- 🔧 150+ MCP automation tools (PE reverse / Android / CTF / Crypto / Debug)
+- 📚 208 technical articles (Web / APK / PE / Crypto / Game Security)
+- 🔄 15 CTF pipelines (Full chain / 24h unattended / Attack router / Specialized)
+- 🛠 9 reverse engineering tools auto-download (Ghidra / Cutter / x64dbg / DiE / PE-bear / Procmon / nmap / apktool / jadx)
+- 🖥 Multi-platform (Windows / macOS / Linux / WSL)
+- 💾 Auto-backup existing configuration
+- ✅ One-click deploy, auto-detect all config directories
+
+## Quick Start
+
+### Windows
+
+Double-click `启动.bat`.
+
+### macOS
+
+```bash
+chmod +x tgtylab-files/install.sh
+./tgtylab-files/install.sh
+```
+
+### Linux
+
+```bash
+chmod +x tgtylab-files/linux-install.sh
+./tgtylab-files/linux-install.sh
+```
 
 ## Routing
 
@@ -42,57 +72,62 @@ kb/
 └── windows/techniques/        1 category,     2 articles — Windows security
 ```
 
-Each technique file: `Scenario → Input signal → Method → Attack chain → MCP tool mapping`
-
-## Boards
-
-| Board | Trigger Signals |
-|---|---|
-| `ctf-website` | URL, HTTP, JWT, SQLi, SSRF, CVE, API, CSP, OAuth, CAPTCHA, Cloudflare, ReDoS, DoS |
-| `apk-reverse` | APK, DEX, adb, Frida, jadx, smali, SO, native |
-| `pe-reverse` | PE, EXE, DLL, x64dbg, Ghidra, Procmon, packer, malware |
-| `general` | AES/DES/RSA, protobuf, game cheat, EAC/BE/Vanguard, firmware, JTAG, SDR |
-
 ## Directory Convention
 
 ```
 samples/      → Original samples + _quarantine/ + unpacked/
-exports/      → Tool outputs (triage / IOC / YARA / Sigma / Ghidra)
-patches/      → Patch artifacts (original samples never modified)
+exports/      → Tool outputs
+patches/      → Patch artifacts
 notes/        → Analysis notes
 reports/      → Final reports
 scripts/      → Automation scripts
-kb/           → Reusable knowledge base
+kb/           → Knowledge base
 tools/        → Toolchain
 cases/        → Lightweight index
 ```
 
-## Installation
+## System Requirements
 
-```powershell
-git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
-cd Open-tgtylab
-启动.bat
-```
+- Windows 10/11 (PowerShell 5.1+) / macOS / Linux
+- Git, Python 3.11+
+- Claude Code / Codex / Hermes / OpenCode (any)
 
-macOS / Linux:
-```bash
-chmod +x tgtylab-files/install.sh && ./tgtylab-files/install.sh
-```
+## Other Operations
 
-启动.bat auto-deploys: config → MCP dependencies → Python RE libs → reverse engineering tools → WSL sync.
+| Action | Windows | macOS / Linux |
+|--------|---------|---------------|
+| Uninstall | Double-click `卸载.bat` | `./tgtylab-files/uninstall.sh` |
+| Verify | Double-click `验证.bat` | Check `~/.claude/CLAUDE.md` exists |
+| Restore | Double-click `恢复备份.bat` | Copy `~/.claude/backups/tgtylab-*` |
 
-## Agent Quick Start
-
-1. Clone to a stable local directory.
-2. Double-click `启动.bat` (Windows) or run `install.sh` (macOS/Linux).
-3. Open the `Open-tgtylab` folder in Claude Code / Codex / Hermes / OpenCode.
-4. Verify: double-click `验证.bat`.
-
-## Context Chain
+## File Structure
 
 ```
-CLAUDE.md → AGENTS.md → AI-USAGE.md → kb/<board>/AI-USAGE.md
+open-tgtylab/
+├── 启动.bat                       Windows one-click deploy
+├── 启动.command                   macOS one-click deploy
+├── 卸载.bat / 验证.bat / 恢复备份.bat
+├── tgtylab-files/
+│   ├── deploy.ps1                 Windows deploy engine
+│   ├── install_tools.ps1          Reverse engineering tool downloader
+│   ├── install.sh / linux-install.sh / uninstall.sh
+│   └── config-bundle/
+│       ├── CLAUDE.md              Research protocol (562 examples)
+│       └── system-prompt.md       System prompt
+├── tools/
+│   ├── ctf-website/               CTF tools + wordlists + payloads
+│   ├── skills/mcp/                MCP Server (150+ tools)
+│   ├── common/                    Ghidra (auto-download)
+│   ├── windows/                   x64dbg/DiE/PE-bear/Procmon (auto-download)
+│   └── android/                   apktool/jadx (auto-download)
+├── kb/                            Knowledge base (208 articles)
+├── .claude/                       Claude Code config + pipelines + skills
+├── .codex/                        Codex config
+├── AGENTS.md                      Agent protocol
+├── AI-USAGE.md                    Task routing
+├── codex-files/                   Codex config template
+├── hermes-files/                  Hermes config
+└── opencode-files/                OpenCode config
 ```
 
 ## License
