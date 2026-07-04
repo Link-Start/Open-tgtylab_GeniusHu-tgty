@@ -9,7 +9,7 @@
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-red.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WSL-blue.svg)]()
 [![MCP Tools](https://img.shields.io/badge/MCP_Tools-150+-9cf.svg)]()
-[![Knowledge Base](https://img.shields.io/badge/KB-208%20Articles-brightgreen.svg)]()
+[![Knowledge Base](https://img.shields.io/badge/KB-222%20Articles-brightgreen.svg)]()
 [![Pipelines](https://img.shields.io/badge/CTF_Pipelines-15-orange.svg)]()
 
 </div>
@@ -74,12 +74,14 @@ chmod +x tgtylab-files/linux-install.sh
 ## 知识库
 
 ```
-kb/
-├── ctf-website/techniques/   26 类 118 篇 — Web 安全全覆盖
-├── apk-reverse/techniques/    8 类  20 篇 — APK/DEX 逆向
-├── pe-reverse/techniques/     9 类  22 篇 — PE 二进制分析
-├── general/techniques/        5 类  17 篇 — 密码学/协议/内核/游戏安全
-└── windows/techniques/        1 类   2 篇 — Windows 安全
+kb/                                    共 222 篇文章
+├── deep-articles/                      12 篇深度攻击指南 — SQLi/SSRF/SSTI/XSS/LFI/JWT/反序列化/XXE/RCE/上传/走私/OAuth
+├── ctf-website/techniques/            26 类 127 篇 — Web 安全全覆盖
+├── apk-reverse/techniques/             8 类  22 篇 — APK/DEX 逆向
+├── pe-reverse/techniques/              9 类  24 篇 — PE 二进制分析
+├── general/techniques/                 5 类  19 篇 — 密码学/协议/内核/游戏安全
+├── payloads/cheatsheet.md             全类型 Payload 速查表
+└── AI-SEARCH-INDEX.md                 RAG 搜索索引（覆盖全部 222 篇）
 ```
 
 ## 目录约定
@@ -157,7 +159,14 @@ open-tgtylab/
 │   ├── common/                    Ghidra（自动下载）
 │   ├── windows/                   x64dbg/DiE/PE-bear/Procmon（自动下载）
 │   └── android/                   apktool/jadx（自动下载）
-├── kb/                            知识库（208 篇）
+├── kb/                            知识库（222 篇）
+│   ├── deep-articles/             12 篇深度攻击指南
+│   ├── ctf-website/techniques/    127 篇 Web 攻击技术
+│   ├── apk-reverse/techniques/    22 篇 APK 逆向技术
+│   ├── pe-reverse/techniques/     24 篇 PE 分析技术
+│   ├── general/techniques/        19 篇通用技术
+│   ├── payloads/cheatsheet.md    全类型 Payload 速查
+│   └── AI-SEARCH-INDEX.md        RAG 搜索索引
 ├── .claude/                       Claude Code 配置 + 流水线 + skills
 ├── .codex/                        Codex 配置
 ├── AGENTS.md                      Agent 操作协议

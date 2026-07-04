@@ -9,7 +9,7 @@
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-red.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WSL-blue.svg)]()
 [![MCP Tools](https://img.shields.io/badge/MCP_Tools-150+-9cf.svg)]()
-[![Knowledge Base](https://img.shields.io/badge/KB-208%20Articles-brightgreen.svg)]()
+[![Knowledge Base](https://img.shields.io/badge/KB-222%20Articles-brightgreen.svg)]()
 [![Pipelines](https://img.shields.io/badge/CTF_Pipelines-15-orange.svg)]()
 
 </div>
