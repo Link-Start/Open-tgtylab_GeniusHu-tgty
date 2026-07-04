@@ -88,9 +88,30 @@ cases/        → 轻量索引
 
 ## 系统要求
 
-- Windows 10/11 (PowerShell 5.1+) / macOS / Linux
-- Git、Python 3.11+
-- Claude Code / Codex / Hermes / OpenCode（任一）
+| 依赖 | 版本 | 说明 |
+|------|------|------|
+| **操作系统** | Windows 10/11 / macOS 12+ / Linux | WSL 自动检测 |
+| **Python** | 3.11+ | MCP 工具运行环境 |
+| **Git** | 任意版本 | clone 项目 |
+| **PowerShell** | 5.1+（Windows） | 部署脚本 |
+| **uv** | 任意版本 | Python 包管理器（自动安装） |
+
+| AI 工具 | 状态 |
+|---------|------|
+| Claude Code | ✅ 完整支持 |
+| Codex App | ✅ 完整支持 |
+| Hermes | ✅ 完整支持 |
+| OpenCode | ✅ 完整支持 |
+
+| 兼容性 | 状态 |
+|--------|------|
+| Windows 11 / 10 / 8 / 7 | ✅ |
+| WSL (Ubuntu/Debian) | ✅ 自动检测 |
+| macOS 12+ | ✅ |
+| Linux (Ubuntu/Debian/Arch) | ✅ |
+| 中文路径 | ✅ |
+| 空格路径 | ✅ |
+| 非管理员 | ✅ |
 
 ## 其他操作
 

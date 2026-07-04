@@ -88,9 +88,30 @@ cases/        → Lightweight index
 
 ## System Requirements
 
-- Windows 10/11 (PowerShell 5.1+) / macOS / Linux
-- Git, Python 3.11+
-- Claude Code / Codex / Hermes / OpenCode (any)
+| Dependency | Version | Notes |
+|------------|---------|-------|
+| **OS** | Windows 10/11 / macOS 12+ / Linux | WSL auto-detected |
+| **Python** | 3.11+ | MCP tool runtime |
+| **Git** | Any | Clone the project |
+| **PowerShell** | 5.1+ (Windows) | Deploy scripts |
+| **uv** | Any | Python package manager (auto-installed) |
+
+| AI Tool | Status |
+|---------|--------|
+| Claude Code | ✅ Full support |
+| Codex App | ✅ Full support |
+| Hermes | ✅ Full support |
+| OpenCode | ✅ Full support |
+
+| Compatibility | Status |
+|---------------|--------|
+| Windows 11 / 10 / 8 / 7 | ✅ |
+| WSL (Ubuntu/Debian) | ✅ Auto-detected |
+| macOS 12+ | ✅ |
+| Linux (Ubuntu/Debian/Arch) | ✅ |
+| Non-ASCII paths | ✅ |
+| Spaces in paths | ✅ |
+| Non-admin | ✅ |
 
 ## Other Operations
 
