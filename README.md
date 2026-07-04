@@ -18,77 +18,66 @@
 
 > [中文版](README.zh.md)
 
-## Routing
+## What is this
+
+open-tgtylab is an AI Agent toolkit for security researchers. It bundles 150+ MCP tools, 208 technical articles, 15 CTF automation pipelines, and 9 reverse engineering tools into a single package, deployed with one click to your AI tool.
+
+Supports Claude Code, Codex, Hermes, and OpenCode. Works on Windows / macOS / Linux / WSL.
+
+## Quick Start
 
 ```
-Signal → kb_router(board=) → kb_read_file → Technique → MCP tool mapping → Execution
+git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
+cd Open-tgtylab
+双击 启动.bat
 ```
 
-| Signal Type | Board | KB Categories / Files | MCP Tool Family |
-|---|---|---|---|
-| HTTP/Web/API/CVE/Cloud | `ctf-website` | 26/118 | `http_probe` `run_ctf_tool` `kb_router` |
-| APK/DEX/SO/Frida/Java | `apk-reverse` | 8/20 | `android_app_baseline` `android_crypto_unpack_recipe` `android_frida_*` |
-| PE/x64/x86/malware/driver | `pe-reverse` | 9/22 | `triage_pe` `ghidra_headless_analyze` `make_x64dbg_breakpoint_script` `sample_full_workup` |
-| Crypto/Protocol/Cheat/IoT/Radio | `general` | 5/17 | `die_scan` `ghidra_*` `rizin_*` `python_re_tool_*` |
+启动.bat auto-deploys: config → MCP dependencies → Python RE libs → reverse engineering tools → WSL sync.
 
-## Knowledge Base
+## Capabilities
 
-```
-kb/
-├── ctf-website/techniques/   26 categories, 118 articles — Full web attack surface
-├── apk-reverse/techniques/    8 categories,  20 articles — APK/DEX reverse engineering
-├── pe-reverse/techniques/     9 categories,  22 articles — PE binary analysis
-├── general/techniques/        5 categories,  17 articles — Cryptography / Protocols / Kernel / Cheating
-└── windows/techniques/        1 category,     2 articles — Windows security
-```
+### MCP Tools (150+)
 
-Each technique file: `Scenario → Input signal → Method → Attack chain → MCP tool mapping`
+PE/ELF analysis (17) · Ghidra deep analysis (7) · Full sample analysis pipeline (4) · Android reverse (28) · Crypto/unpack (6) · CTF automation (4) · Knowledge base query (3) · Sample management (7) · Debug scripts (3) · Procmon (3) · Python RE (3) · Toolbox (4) · Workspace (7) · Audit (3)
 
-## Boards
+### Knowledge Base (208 articles)
 
-| Board | Trigger Signals |
-|---|---|
-| `ctf-website` | URL, HTTP, JWT, SQLi, SSRF, CVE, API, CSP, OAuth, CAPTCHA, Cloudflare, ReDoS, DoS |
-| `apk-reverse` | APK, DEX, adb, Frida, jadx, smali, SO, native |
-| `pe-reverse` | PE, EXE, DLL, x64dbg, Ghidra, Procmon, packer, malware |
-| `general` | AES/DES/RSA, protobuf, game cheat, EAC/BE/Vanguard, firmware, JTAG, SDR |
+| Board | Articles | Coverage |
+|-------|----------|----------|
+| Web Security | 118 | JWT/SQLi/XSS/SSRF/CVE/Cloud/DoS/OAuth/GraphQL |
+| PE Reverse | 22 | Packing/AOB/Unpack/TLS/YARA |
+| Android | 20 | Frida/IL2CPP/Crypto/JNI/Unpack |
+| General | 17 | Crypto/Protocol/Kernel/Game Security |
+| Windows | 2 | Injection/Config Security |
+
+### CTF Pipelines (15)
+
+Full chain · 24h fleet attack · 24h unattended · Attack router · Injection/Auth/Recon/Client/SSRF/API/CVE/DoS specialized · Asset discovery · DoS assessment · Vuln discovery · PoC verification
+
+### Reverse Engineering Tools (Auto-download)
+
+Ghidra · Cutter · x64dbg · DiE · PE-bear · Procmon · nmap · apktool · jadx
 
 ## Directory Convention
 
 ```
 samples/      → Original samples + _quarantine/ + unpacked/
-exports/      → Tool outputs (triage / IOC / YARA / Sigma / Ghidra)
-patches/      → Patch artifacts (original samples never modified)
+exports/      → Tool outputs
+patches/      → Patch artifacts
 notes/        → Analysis notes
 reports/      → Final reports
-scripts/      → Automation scripts
-kb/           → Reusable knowledge base
+kb/           → Knowledge base
 tools/        → Toolchain
 cases/        → Lightweight index
 ```
 
-## Installation
+## Other Operations
 
-Double-click `启动.bat` on Windows, or run `install.sh` on macOS/Linux.
-
-```powershell
-git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
-cd Open-tgtylab
-启动.bat
-```
-
-## Agent Quick Start
-
-1. Clone to a stable local directory.
-2. Double-click `启动.bat` (Windows) or run `install.sh` (macOS/Linux).
-3. Open the `Open-tgtylab` folder in Claude Code / Codex / Hermes / OpenCode.
-4. Verify: double-click `验证.bat`.
-
-## Context Chain
-
-```
-CLAUDE.md → AGENTS.md → AI-USAGE.md → kb/<board>/AI-USAGE.md
-```
+| Action | Windows | macOS / Linux |
+|--------|---------|---------------|
+| Uninstall | Double-click `卸载.bat` | `./tgtylab-files/uninstall.sh` |
+| Verify | Double-click `验证.bat` | Check `~/.claude/CLAUDE.md` exists |
+| Restore | Double-click `恢复备份.bat` | Manually copy `~/.claude/backups/tgtylab-*` |
 
 ## License
 
