@@ -18,66 +18,79 @@
 
 > [English version](README.md)
 
-## 这是什么
-
-open-tgtylab 是一个面向安全研究员的 AI Agent 工具包。它把 150+ MCP 工具、208 篇技术知识库、15 条 CTF 自动化流水线、9 个逆向工具打包在一起，通过一个 `启动.bat` 一键部署到你的 AI 工具里。
-
-支持 Claude Code、Codex、Hermes、OpenCode 四个平台，Windows / macOS / Linux / WSL 全覆盖。
-
-## 快速开始
+## 路由
 
 ```
-git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
-cd Open-tgtylab
-双击 启动.bat
+信号 → kb_router(board=) → kb_read_file → 技术文档 → MCP 工具映射 → 执行
 ```
 
-启动.bat 自动完成：配置部署 → MCP 依赖 → Python RE 库 → 逆向工具下载 → WSL 同步。
+| 信号类型 | Board | KB 分类/文件 | MCP 工具族 |
+|---------|-------|-------------|-----------|
+| HTTP/Web/API/CVE/Cloud | `ctf-website` | 26/118 | `http_probe` `run_ctf_tool` `kb_router` |
+| APK/DEX/SO/Frida/Java | `apk-reverse` | 8/20 | `android_app_baseline` `android_crypto_unpack_recipe` `android_frida_*` |
+| PE/x64/x86/malware/driver | `pe-reverse` | 9/22 | `triage_pe` `ghidra_headless_analyze` `make_x64dbg_breakpoint_script` `sample_full_workup` |
+| Crypto/Protocol/Cheat/IoT/Radio | `general` | 5/17 | `die_scan` `ghidra_*` `rizin_*` `python_re_tool_*` |
 
-## 能力清单
+## 知识库
 
-### MCP 工具（150+）
+```
+kb/
+├── ctf-website/techniques/   26 类 118 篇 — Web 安全全覆盖
+├── apk-reverse/techniques/    8 类  20 篇 — APK/DEX 逆向
+├── pe-reverse/techniques/     9 类  22 篇 — PE 二进制分析
+├── general/techniques/        5 类  17 篇 — 密码学/协议/内核/游戏安全
+└── windows/techniques/        1 类   2 篇 — Windows 安全
+```
 
-PE/ELF 分析（17）· Ghidra 深度分析（7）· 样本全分析流水线（4）· Android 逆向（28）· 加密/脱壳（6）· CTF 自动化（4）· 知识库查询（3）· 样本管理（7）· 调试脚本（3）· Procmon 动态分析（3）· Python RE 管理（3）· 工具箱管理（4）· 工作区管理（7）· 审计/维护（3）
+每篇结构：`场景 → 信号 → 方法 → 攻击链 → MCP 工具映射`
 
-### 知识库（208 篇）
+Agent 工作流：检测信号 → `kb_router` 查技术文档 → `kb_read_file` 读取 → 按 MCP 工具映射执行。
 
-| 板块 | 篇数 | 覆盖 |
-|------|------|------|
-| Web 安全 | 118 | JWT/SQLi/XSS/SSRF/CVE/云/DoS/OAuth/GraphQL |
-| PE 逆向 | 22 | 壳分析/AOB/脱壳/TLS/YARA |
-| Android | 20 | Frida/IL2CPP/加密/JNI/脱壳 |
-| 通用安全 | 17 | 密码学/协议/内核/游戏安全 |
-| Windows | 2 | 注入/配置安全 |
+## 板块
 
-### CTF 流水线（15 条）
-
-全链路 · 24h 舰队攻击 · 24h 无人值守 · 攻击路由 · 注入/认证/侦察/客户端/SSRF/API/CVE/DoS 专项 · 资产发现 · DoS 评估 · 漏洞挖掘 · PoC 验证
-
-### 逆向工具（自动下载）
-
-Ghidra · Cutter · x64dbg · DiE · PE-bear · Procmon · nmap · apktool · jadx
+| 板块 | 触发信号 |
+|------|---------|
+| `ctf-website` | URL, HTTP, JWT, SQLi, SSRF, CVE, API, CSP, OAuth, CAPTCHA, Cloudflare, ReDoS, DoS |
+| `apk-reverse` | APK, DEX, adb, Frida, jadx, smali, SO, native |
+| `pe-reverse` | PE, EXE, DLL, x64dbg, Ghidra, Procmon, packer, malware |
+| `general` | AES/DES/RSA, protobuf, 游戏安全, EAC/BE/Vanguard, 固件, JTAG, SDR |
 
 ## 目录约定
 
 ```
 samples/      → 原始样本 + _quarantine/ + unpacked/
-exports/      → 工具输出
-patches/      → Patch 产物
+exports/      → 工具输出（triage/IOC/YARA/Sigma/Ghidra summary）
+patches/      → Patch 产物（不修改原始样本）
 notes/        → 分析笔记
 reports/      → 最终报告
-kb/           → 知识库
+scripts/      → 自动化脚本
+kb/           → 可复用技术知识库
 tools/        → 工具链
-cases/        → 轻量索引
+cases/        → 轻量索引，不复制大文件
 ```
 
-## 其他操作
+## 安装
 
-| 操作 | Windows | macOS / Linux |
-|------|---------|---------------|
-| 卸载 | 双击 `卸载.bat` | `./tgtylab-files/uninstall.sh` |
-| 验证 | 双击 `验证.bat` | 检查 `~/.claude/CLAUDE.md` 是否存在 |
-| 恢复 | 双击 `恢复备份.bat` | 手动复制 `~/.claude/backups/tgtylab-*` |
+Windows 双击 `启动.bat`，自动完成全部部署。macOS/Linux 见下方。
+
+```powershell
+git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
+cd Open-tgtylab
+启动.bat
+```
+
+## Agent 快速开始
+
+1. Clone 到本地固定目录。
+2. 双击 `启动.bat`（Windows）或运行 `install.sh`（macOS/Linux）。
+3. Claude Code / Codex / Hermes / OpenCode：打开 `Open-tgtylab` 文件夹。
+4. 验证：双击 `验证.bat` 或检查 `~/.claude/CLAUDE.md` 是否存在。
+
+## 上下文链
+
+```
+CLAUDE.md → AGENTS.md → AI-USAGE.md → kb/<board>/AI-USAGE.md
+```
 
 ## 许可
 
