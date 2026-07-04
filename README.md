@@ -48,6 +48,16 @@ chmod +x tgtylab-files/linux-install.sh
 ./tgtylab-files/linux-install.sh
 ```
 
+### Usage
+
+After deployment, **open the `Open-tgtylab` directory in your AI tool**:
+
+- **Claude Code**: `cd Open-tgtylab` before starting the session
+- **Codex App**: open the `Open-tgtylab` folder directly
+- **Hermes / OpenCode**: auto-configured, restart to apply
+
+> ⚠️ You must use the tool from inside the `Open-tgtylab` directory. MCP tools and knowledge base paths are relative to the project root.
+
 ## Routing
 
 ```

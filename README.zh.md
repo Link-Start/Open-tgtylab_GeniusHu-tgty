@@ -48,6 +48,16 @@ chmod +x tgtylab-files/linux-install.sh
 ./tgtylab-files/linux-install.sh
 ```
 
+### 使用
+
+部署完成后，**用 AI 工具打开 `Open-tgtylab` 目录**：
+
+- **Claude Code**：`cd Open-tgtylab` 后启动会话
+- **Codex App**：直接打开 `Open-tgtylab` 文件夹
+- **Hermes / OpenCode**：自动配置，重启生效
+
+> ⚠️ 必须在 `Open-tgtylab` 目录内使用，不要在其他目录打开。M 工具和知识库的路径都是相对于项目根目录的。
+
 ## 路由
 
 ```
