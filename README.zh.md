@@ -71,20 +71,25 @@ cases/        → 轻量索引，不复制大文件
 
 ## 安装
 
-Windows 双击 `启动.bat`，自动完成全部部署。macOS/Linux 见下方。
-
 ```powershell
 git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
 cd Open-tgtylab
 启动.bat
 ```
 
+macOS / Linux：
+```bash
+chmod +x tgtylab-files/install.sh && ./tgtylab-files/install.sh
+```
+
+启动.bat 自动完成：配置部署 → MCP 依赖 → Python RE 库 → 逆向工具下载 → WSL 同步。
+
 ## Agent 快速开始
 
 1. Clone 到本地固定目录。
 2. 双击 `启动.bat`（Windows）或运行 `install.sh`（macOS/Linux）。
 3. Claude Code / Codex / Hermes / OpenCode：打开 `Open-tgtylab` 文件夹。
-4. 验证：双击 `验证.bat` 或检查 `~/.claude/CLAUDE.md` 是否存在。
+4. 验证：双击 `验证.bat`。
 
 ## 上下文链
 

@@ -69,13 +69,18 @@ cases/        → Lightweight index
 
 ## Installation
 
-Double-click `启动.bat` on Windows, or run `install.sh` on macOS/Linux.
-
 ```powershell
 git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
 cd Open-tgtylab
 启动.bat
 ```
+
+macOS / Linux:
+```bash
+chmod +x tgtylab-files/install.sh && ./tgtylab-files/install.sh
+```
+
+启动.bat auto-deploys: config → MCP dependencies → Python RE libs → reverse engineering tools → WSL sync.
 
 ## Agent Quick Start
 
