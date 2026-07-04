@@ -16,20 +16,7 @@
 
 ---
 
-开源安全研究工具包，支持多 Agent 平台。一键部署到 Claude Code、Codex App、Hermes、OpenCode。208 篇知识库，150+ MCP 自动化工具，覆盖 CTF / APK 逆向 / PE 二进制分析 / 密码学 / 游戏安全。Agent 原生，目录即约定。
-
 > [English version](README.md)
-
-## 多 Agent 支持
-
-| Agent | 配置文件 | 越狱方式 |
-|-------|---------|---------|
-| **Claude Code** | `CLAUDE.md`（562 示例） | 人格 + few-shot 示例 |
-| **Codex App** | `.codex/gpt5.5-unrestricted.md` | 安全研究者人格 + 沙箱上下文 |
-| **Hermes** | `hermes-files/SOUL.md` | 人格 + few-shot 示例 |
-| **OpenCode** | `opencode-files/prompts/security-operator.txt` | 人格 + few-shot 示例 |
-
-每个 Agent 有独立优化的配置。一个 `启动.bat` 全部部署。
 
 ## 路由
 
@@ -37,12 +24,12 @@
 信号 → kb_router(board=) → kb_read_file → 技术文档 → MCP 工具映射 → 执行
 ```
 
-| 信号类型 | Board | KB 分类数/文件数 | MCP 工具族 |
-|---------|-------|-----------------|-----------|
+| 信号类型 | Board | KB 分类/文件 | MCP 工具族 |
+|---------|-------|-------------|-----------|
 | HTTP/Web/API/CVE/Cloud | `ctf-website` | 26/118 | `http_probe` `run_ctf_tool` `kb_router` |
 | APK/DEX/SO/Frida/Java | `apk-reverse` | 8/20 | `android_app_baseline` `android_crypto_unpack_recipe` `android_frida_*` |
 | PE/x64/x86/malware/driver | `pe-reverse` | 9/22 | `triage_pe` `ghidra_headless_analyze` `make_x64dbg_breakpoint_script` `sample_full_workup` |
-| Crypto/Protocol/Cheat/IoT/Radio | `general` | 5/17 | `die_scan` `ghidra_*` `rizin_*` `python_re_tool_*` |
+| Crypto/Protocol/Cheat/IoT | `general` | 5/17 | `die_scan` `ghidra_*` `rizin_*` `python_re_tool_*` |
 
 ## 知识库
 
@@ -57,22 +44,14 @@ kb/
 
 每篇结构：`场景 → 信号 → 方法 → 攻击链 → MCP 工具映射`
 
-## CTF 流水线（15 条）
+## 板块
 
-| 流水线 | 功能 |
-|--------|------|
-| `ctf-full-pipeline` | 全链路：资产 → 漏洞 → 验证 → 报告 |
-| `ctf-24h-fleet` | 24h 舰队攻击（批量目标自动循环） |
-| `ctf-24h-round` | 24h 单轮（无人值守，支持断点恢复） |
-| `ctf-attack-router` | 攻击路由器（自动选择攻击路径） |
-| `ctf-attack-*` | 专项攻击（注入/认证/侦察/客户端/SSRF/API/CVE/DoS） |
-| `ctf-asset-discovery` | 资产发现（6 并行 agent） |
-| `ctf-vuln-discovery` | 漏洞挖掘（5 并行 agent） |
-| `ctf-vuln-verify` | PoC 验证 |
-
-## 逆向工具（自动下载）
-
-Ghidra · Cutter · x64dbg · DiE · PE-bear · Procmon · nmap · apktool · jadx
+| 板块 | 触发信号 |
+|------|---------|
+| `ctf-website` | URL, HTTP, JWT, SQLi, SSRF, CVE, API, CSP, OAuth, CAPTCHA, Cloudflare, ReDoS, DoS |
+| `apk-reverse` | APK, DEX, adb, Frida, jadx, smali, SO, native |
+| `pe-reverse` | PE, EXE, DLL, x64dbg, Ghidra, Procmon, packer, malware |
+| `general` | AES/DES/RSA, protobuf, 游戏安全, EAC/BE/Vanguard, 固件, JTAG, SDR |
 
 ## 目录约定
 
@@ -85,27 +64,30 @@ reports/      → 最终报告
 scripts/      → 自动化脚本
 kb/           → 可复用技术知识库
 tools/        → 工具链
-cases/        → 轻量索引，不复制大文件
+cases/        → 轻量索引
 ```
 
 ## 安装
 
-```
+Windows 双击 `启动.bat`，自动完成全部部署。
+
+```powershell
 git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
 cd Open-tgtylab
-双击 启动.bat
+启动.bat
 ```
 
-启动.bat 自动完成：配置部署 → MCP 依赖 → Python RE 库 → 逆向工具下载 → WSL 同步。
+macOS / Linux：
+```bash
+chmod +x tgtylab-files/install.sh && ./tgtylab-files/install.sh
+```
 
 ## Agent 快速开始
 
 1. Clone 到本地固定目录。
 2. 双击 `启动.bat`（Windows）或运行 `install.sh`（macOS/Linux）。
-3. Claude Code：`cd Open-tgtylab` 后启动会话。
-4. Codex App：直接打开 `Open-tgtylab` 文件夹。
-5. Hermes / OpenCode：自动配置，重启生效。
-6. 验证：双击 `验证.bat` 或检查 `~/.claude/CLAUDE.md` 是否存在。
+3. Claude Code / Codex / Hermes / OpenCode：打开 `Open-tgtylab` 文件夹。
+4. 验证：双击 `验证.bat`。
 
 ## 上下文链
 

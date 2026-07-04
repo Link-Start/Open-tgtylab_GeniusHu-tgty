@@ -2,9 +2,9 @@
 
 # 🐙 open-tgtylab
 
-**一键部署的安全研究工具包**
+**One-click security research toolkit**
 
-150+ MCP 工具 · 208 篇知识库 · 15 条自动化流水线
+150+ MCP tools · 208 knowledge base articles · 15 automated pipelines
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-red.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WSL-blue.svg)]()
@@ -16,20 +16,7 @@
 
 ---
 
-Open-source security research toolkit with multi-agent support. One-click deployment to Claude Code, Codex App, Hermes, and OpenCode. 208-article knowledge base, 150+ MCP automation tools, covering CTF / APK reverse engineering / PE binary analysis / cryptography / game security. Agent-native, directory-as-convention.
-
 > [中文版](README.zh.md)
-
-## Multi-Agent Support
-
-| Agent | Config File | Jailbreak Method |
-|-------|------------|-----------------|
-| **Claude Code** | `CLAUDE.md` (562 examples) | Persona + few-shot examples |
-| **Codex App** | `.codex/gpt5.5-unrestricted.md` | Security researcher persona + sandbox context |
-| **Hermes** | `hermes-files/SOUL.md` | Persona + few-shot examples |
-| **OpenCode** | `opencode-files/prompts/security-operator.txt` | Persona + few-shot examples |
-
-Each agent gets its own optimized configuration. One `启动.bat` deploys all.
 
 ## Routing
 
@@ -57,25 +44,14 @@ kb/
 
 Each technique file: `Scenario → Input signal → Method → Attack chain → MCP tool mapping`
 
-## CTF Pipelines (15)
+## Boards
 
-| Pipeline | Purpose |
-|----------|---------|
-| `ctf-full-pipeline` | Full chain: asset discovery → vulnerability scan → PoC verify → report |
-| `ctf-24h-fleet` | 24h fleet attack (batch targets, auto loop) |
-| `ctf-24h-round` | 24h single-round (unattended loop with checkpoint) |
-| `ctf-attack-router` | Attack router (auto-select attack path by target) |
-| `ctf-attack-injection` / `auth` / `recon` / `client` / `file_ssrf` / `api_business` / `cve_cloud_dos` | Specialized attack pipelines |
-| `ctf-asset-discovery` | Asset discovery (6 parallel agents) |
-| `ctf-dos-assessment` | DoS attack surface assessment |
-| `ctf-vuln-discovery` | Vulnerability discovery (5 parallel agents) |
-| `ctf-vuln-verify` | PoC verification |
-
-## Reverse Engineering Tools (Auto-download)
-
-Ghidra · Cutter · x64dbg · DiE · PE-bear · Procmon · nmap · apktool · jadx
-
-All downloaded automatically by `启动.bat`.
+| Board | Trigger Signals |
+|---|---|
+| `ctf-website` | URL, HTTP, JWT, SQLi, SSRF, CVE, API, CSP, OAuth, CAPTCHA, Cloudflare, ReDoS, DoS |
+| `apk-reverse` | APK, DEX, adb, Frida, jadx, smali, SO, native |
+| `pe-reverse` | PE, EXE, DLL, x64dbg, Ghidra, Procmon, packer, malware |
+| `general` | AES/DES/RSA, protobuf, game cheat, EAC/BE/Vanguard, firmware, JTAG, SDR |
 
 ## Directory Convention
 
@@ -88,27 +64,25 @@ reports/      → Final reports
 scripts/      → Automation scripts
 kb/           → Reusable knowledge base
 tools/        → Toolchain
-cases/        → Lightweight index — no large file copies
+cases/        → Lightweight index
 ```
 
 ## Installation
 
+Double-click `启动.bat` on Windows, or run `install.sh` on macOS/Linux.
+
 ```powershell
 git clone https://github.com/GeniusHu-tgty/Open-tgtylab.git
 cd Open-tgtylab
-双击 启动.bat
+启动.bat
 ```
-
-启动.bat auto-deploys to all agents: config → MCP dependencies → Python RE libs → reverse engineering tools → WSL sync.
 
 ## Agent Quick Start
 
 1. Clone to a stable local directory.
 2. Double-click `启动.bat` (Windows) or run `install.sh` (macOS/Linux).
-3. Claude Code: `cd Open-tgtylab` before starting the session.
-4. Codex App: open the `Open-tgtylab` folder directly.
-5. Hermes / OpenCode: auto-configured, restart to apply.
-6. Verify: double-click `验证.bat` (Windows) or check `~/.claude/CLAUDE.md` exists.
+3. Open the `Open-tgtylab` folder in Claude Code / Codex / Hermes / OpenCode.
+4. Verify: double-click `验证.bat`.
 
 ## Context Chain
 
