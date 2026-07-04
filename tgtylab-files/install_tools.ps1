@@ -62,21 +62,28 @@ $script:installed = 0
 $script:skipped = 0
 $script:failed = 0
 
-# -- Helper: Download with retry --
+# -- Helper: Download with retry and fallback URLs --
 function Invoke-SafeDownload {
-    param([string]$Url, [string]$Output, [int]$Retries = 2)
-    for ($i = 0; $i -le $Retries; $i++) {
-        try {
-            $wc = New-Object System.Net.WebClient
-            $wc.Headers.Add('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)')
-            $wc.DownloadFile($Url, $Output)
-            $wc.Dispose()
-            if ((Test-Path $Output) -and (Get-Item $Output).Length -gt 100) {
-                return $true
+    param([string[]]$Urls, [string]$Output, [int]$Retries = 2)
+    foreach ($Url in $Urls) {
+        for ($i = 0; $i -le $Retries; $i++) {
+            try {
+                $wc = New-Object System.Net.WebClient
+                $wc.Headers.Add('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)')
+                $wc.DownloadFile($Url, $Output)
+                $wc.Dispose()
+                if ((Test-Path $Output) -and (Get-Item $Output).Length -gt 100) {
+                    return $true
+                }
+            } catch {
+                if ($i -eq $Retries) {
+                    Write-Warning "    Failed: $Url"
+                }
             }
-        } catch {
-            if ($i -eq $Retries) {
-                Write-Warning "    Download failed after $($Retries+1) attempts: $Url"
+        }
+    }
+    return $false
+}
                 Write-Warning "    Error: $_"
             } else {
                 Start-Sleep -Seconds 2
@@ -339,8 +346,16 @@ function Install-Nmap {
     Write-Host "[*] Nmap" -ForegroundColor Cyan
     Write-Host "    Downloading..." -ForegroundColor Gray
     $zip = Join-Path $DOWNLOADS 'nmap.zip'
-    $url = 'https://nmap.org/dist/nmap-7.92-win32.zip'
-    Invoke-SafeDownload $url $zip
+    # Multiple mirror URLs for resilience
+    $urls = @(
+        'https://nmap.org/dist/nmap-7.92-win32.zip',
+        'https://nmap.org/dist/nmap-7.91-win32.zip',
+        'https://nmap.org/dist/nmap-7.90-win32.zip'
+    )
+    if (!(Invoke-SafeDownload $urls $zip)) {
+        Write-Warning "    Nmap download failed from all mirrors"
+        $script:failed++; return
+    }
     Expand-Safe $zip $dir
     # Move contents up if nested
     $sub = Get-ChildItem $dir -Directory -Filter 'nmap-*' -ErrorAction SilentlyContinue | Select-Object -First 1
