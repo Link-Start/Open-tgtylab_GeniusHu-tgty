@@ -1,4 +1,20 @@
-# open-tgtylab
+<div align="center">
+
+# 🐙 open-tgtylab
+
+**一键部署的安全研究工具包**
+
+150+ MCP 工具 · 208 篇知识库 · 15 条自动化流水线
+
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-red.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20WSL-blue.svg)]()
+[![MCP Tools](https://img.shields.io/badge/MCP_Tools-150+-9cf.svg)]()
+[![Knowledge Base](https://img.shields.io/badge/KB-208%20Articles-brightgreen.svg)]()
+[![Pipelines](https://img.shields.io/badge/CTF_Pipelines-15-orange.svg)]()
+
+</div>
+
+---
 
 开源安全研究工具包，208 篇知识库，150+ MCP 自动化工具，覆盖 CTF 渗透测试 / APK 逆向 / PE 二进制分析 / 密码学与协议破解 / 游戏安全分析。Agent 原生，目录即约定。
 
