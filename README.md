@@ -167,4 +167,6 @@ GPL-3.0-only. See [LICENSE](LICENSE) for details.
 
 ## Disclaimer
 
-This project is for educational and research purposes only. Users are solely responsible for any consequences arising from the use of this project.
+This project is for educational and authorized security research purposes only. Users must ensure they operate within legally authorized scope. Users are solely responsible for any consequences arising from the use of this project.
+
+See [DISCLAIMER.md](DISCLAIMER.md) for the full disclaimer.
