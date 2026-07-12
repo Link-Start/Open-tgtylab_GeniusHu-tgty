@@ -197,3 +197,13 @@ OpenTgtyLab 通过唯一完整 MCP 名称 `hunter_tools` 接入独立的 [Hunter
 ```bash
 python scripts/misc/verify_hunter_tools_integration.py
 ```
+
+### Integration v2 管理命令
+
+```bash
+python scripts/misc/hunter_tools_manager.py install --global-codex
+python scripts/misc/hunter_tools_manager.py update --global-codex
+python scripts/misc/hunter_tools_manager.py doctor
+```
+
+命令会自动克隆/更新 Hunter、移除旧 `hunter` 注册、动态写入当前 Python 与工作区绝对路径，并执行协同验证。

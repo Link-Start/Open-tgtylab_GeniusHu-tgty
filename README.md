@@ -180,3 +180,13 @@ See `docs/hunter-tools-integration.md` and run:
 ```bash
 python scripts/misc/verify_hunter_tools_integration.py
 ```
+
+### Integration v2 manager
+
+```bash
+python scripts/misc/hunter_tools_manager.py install --global-codex
+python scripts/misc/hunter_tools_manager.py update --global-codex
+python scripts/misc/hunter_tools_manager.py doctor
+```
+
+It clones or updates Hunter, removes the legacy `hunter` registration, resolves the current Python/workspace paths, and verifies the integration.

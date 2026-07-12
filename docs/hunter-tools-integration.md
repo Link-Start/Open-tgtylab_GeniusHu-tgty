@@ -41,3 +41,31 @@ python scripts/misc/verify_hunter_tools_integration.py
 ```
 
 The check fails if `hunter` is registered, if `hunter_tools` is absent, if the entrypoint is missing, or if workspace health cannot be obtained.
+
+## Integration v2 lifecycle
+
+Use the cross-platform manager instead of editing MCP paths manually:
+
+```bash
+# Clone Hunter when missing, update it when present, configure this checkout,
+# configure the user's Codex MCP registry, then verify the bridge.
+python scripts/misc/hunter_tools_manager.py install --global-codex
+
+# Fast-forward an existing Hunter checkout and re-apply idempotent config.
+python scripts/misc/hunter_tools_manager.py update --global-codex
+
+# Diagnose repository, contract, entrypoint and integration state.
+python scripts/misc/hunter_tools_manager.py doctor
+```
+
+Optional overrides make the workflow portable:
+
+```bash
+python scripts/misc/hunter_tools_manager.py install \
+  --root /path/to/Open-tgtylab \
+  --hunter-dir /path/to/hunter \
+  --python /path/to/python \
+  --global-codex
+```
+
+The manager removes the legacy `hunter` registration, writes only `hunter_tools`, injects the resolved `OPEN_TGTYLAB_ROOT`, and is idempotent. A changed global Codex configuration reports `restart_required=true`.
