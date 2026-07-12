@@ -82,3 +82,19 @@ python scripts/misc/codex_security_checkpoint.py --latest \
 The adapter reads Codex session metadata, token counters, tool calls, bounded outputs, findings, and next steps. It writes a compact checkpoint with source SHA-256 and a resume hint. It never edits the original session. Use `--dry-run` to preview metrics and `--no-backup` to disable output backup rotation.
 
 This follows the useful adapter/backup/diff principles observed in `ryfineZ/codex-session-patcher`, while keeping OpenTgtyLab focused on evidence-grounded research continuity rather than rewriting model responses.
+
+## Evidence manifest
+
+Register case artifacts in a deduplicated, hash-addressed manifest:
+
+```bash
+python scripts/misc/evidence_manifest.py \
+  --manifest exports/evidence/<case>/manifest.json \
+  --case <case> \
+  --artifact exports/evidence/<case>/request.txt \
+  --tool hunter_auto_idor \
+  --type http-request \
+  --finding-id idor-1
+```
+
+Artifacts must remain inside the case evidence directory. Entries include stable evidence id, relative path, SHA-256, byte size, producing tool, finding linkage and UTC timestamp. Re-registering the same path/hash is idempotent.
